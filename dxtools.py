@@ -5,6 +5,7 @@ from tkinter import messagebox
 import tkinter.ttk as ttk
 import matplotlib.pyplot as plt
 import os
+import sys
 
 from data_reader import *
 from data_processor import *
@@ -35,7 +36,10 @@ class MyApp(Frame):
         self.parent.title("Dx Tools")
         self.pack(fill=BOTH, expand="yes")
         self.parent.resizable(width=False, height=False) #fixed window size
-        self.parent.wm_iconphoto(True, PhotoImage(file=os.path.join(os.getcwd(),"icon128.gif")))
+        if sys.platform == "win32":
+            self.parent.iconbitmap(os.path.join(os.getcwd(),"icon.ico"))
+        elif sys.platform == "linux" or sys.platform == "linux2":
+            self.parent.wm_iconphoto(True, PhotoImage(file=os.path.join(os.getcwd(),"icon128.gif")))
         self.parent.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.flag_data = 0 # no data on startup
         #****************************************
