@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+"""
+DxTools: Processing XRD data files recorded with the Bruker D8 diffractometer
+Copyright 2016, Alexandre  Boulle
+alexandre.boulle@unilim.fr
+"""
 from scipy import loadtxt, savetxt, pi, log10, sin, cos, mgrid, column_stack, row_stack, append, shape, loadtxt, zeros, meshgrid
 from scipy.interpolate import griddata
 from scipy.optimize import leastsq

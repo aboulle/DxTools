@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+"""
+DxTools: Processing XRD data files recorded with the Bruker D8 diffractometer
+Copyright 2016, Alexandre  Boulle
+alexandre.boulle@unilim.fr
+"""
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox

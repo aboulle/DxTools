@@ -1,3 +1,8 @@
+"""
+DxTools: Processing XRD data files recorded with the Bruker D8 diffractometer
+Copyright 2016, Alexandre  Boulle
+alexandre.boulle@unilim.fr
+"""
 from numpy import log, exp, max, where, abs, arange, pi, sqrt, random, array
 from scipy.optimize import  leastsq
 

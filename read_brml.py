@@ -1,4 +1,9 @@
 # -*- coding: utf-8 -*-
+"""
+DxTools: Processing XRD data files recorded with the Bruker D8 diffractometer
+Copyright 2016, Alexandre  Boulle
+alexandre.boulle@unilim.fr
+"""
 import zipfile
 import os
 import sys
