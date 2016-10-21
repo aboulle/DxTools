@@ -413,7 +413,6 @@ def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, s
     return status
 
 def generate_Pole(cleaned, file_name, scantype, line_count, state_indv, state_angmat, state_xyz, start, stop, start2, stop2):
-    sys.stdout.write("Generating pole figure...\n")
     khi = cleaned[:,1]
     phi = cleaned[:,2]
     scanning = cleaned[:,8]
