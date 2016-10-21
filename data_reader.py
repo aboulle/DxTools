@@ -99,8 +99,14 @@ def brml_reader(file_name):
     For every intensity value, saves all relevant motor coordinates and sensor values.
     All values are save in temporary SPEC-style tmp file.
     """
-    #Extracts all RawData*.xml files in the brml to temporary unzip file
     extract_path = os.path.join(os.getcwd(),"unzip")
+    if sys.platform == "win32":
+        os.system("RMDIR "+ extract_path +" /s /q")
+    elif sys.platform == "darwin":
+        os.system("rm -rf "+ extract_path)
+    elif sys.platform == "linux" or sys.platform == "linux2":
+        os.system("rm -rf "+ extract_path)
+    #Extracts all RawData*.xml files in the brml to temporary unzip file
     with zipfile.ZipFile(file_name,"r") as brml:
         for info in brml.infolist():
             if "RawData" in info.filename:
@@ -120,7 +126,7 @@ def brml_reader(file_name):
             scan_type = chain.get("VisibleName")
             if ("PSD" in scan_type) or ("Psd" in scan_type):
                 scan_type = "PSDFIXED"
-            if ("Coupled" in scan_type) or ("coupled" in scan_type):
+            if ("Coupled" in scan_type) or ("coupled" in scan_type) or ("2Theta-Omega" in scan_type):
                 scan_type = "COUPLED"
             if ("Rocking" in scan_type) or ("rocking" in scan_type):
                 scan_type = "THETA"
@@ -131,26 +137,47 @@ def brml_reader(file_name):
             if new_file == 0:
                 step = chain.find("Increment").text
                 start = chain.find("Start").text
+                if chain.find("Reference").text != "":
+                    ref = chain.find("Reference").text
+                    start = str(float(ref)-float(start))
                 new_file += 1
 
         for chain in root.findall("./DataRoutes/DataRoute/ScanInformation/ScanAxes/ScanAxisInfo"):
             if chain.get("AxisName") == "TwoTheta":
                 tth = chain.find("Start").text
+                if chain.find("Reference").text != "":
+                    ref = chain.find("Reference").text
+                    tth = str(float(ref)-float(tth))
                 #print("tth", tth)
             if chain.get("AxisName") == "Theta":
                 om = chain.find("Start").text
+                if chain.find("Reference").text != "":
+                    ref = chain.find("Reference").text
+                    om = str(float(ref)-float(om))
                 #print("om", om)
             if chain.get("AxisName") == "Chi":
                 chi = chain.find("Start").text
+                if chain.find("Reference").text != "":
+                    ref = chain.find("Reference").text
+                    chi = str(float(ref)-float(chi))
                 #print("chi", chi)
             if chain.get("AxisName") == "Phi":
                 phi = chain.find("Start").text
+                if chain.find("Reference").text != "":
+                    ref = chain.find("Reference").text
+                    phi = str(float(ref)-float(phi))
                 #print("phi", phi)
             if chain.get("AxisName") == "X":
                 tx = chain.find("Start").text
+                if chain.find("Reference").text != "":
+                    ref = chain.find("Reference").text
+                    tx = str(float(ref)-float(tx))
                 #print("tx", tx)
             if chain.get("AxisName") == "Y":
                 ty = chain.find("Start").text
+                if chain.find("Reference").text != "":
+                    ref = chain.find("Reference").text
+                    ty = str(float(ref)-float(ty))
                 #print("ty", ty)
 
         for chain in root.findall("./DataRoutes/DataRoute/DataViews/RawDataView/Recording"):
@@ -178,7 +205,6 @@ def brml_reader(file_name):
                 #print("ty", ty)
 
         offset = str(float(om) - float(tth)/2.)
-        #print("offset",offset)
 
         if "PSDFIXED" in scan_type:
             if check_temperature == 0:
