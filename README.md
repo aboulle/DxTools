@@ -10,14 +10,18 @@ In a terminal run (as root) `apt install python3 python3-scipy python3-matplolib
 Run DxTools with `python3 dxtools.py`
 
 ### MS Windows
+The most straightforward way to install Python and all required dependencies in Windows is to install 
+a full-featured scientific Python distribution, like [Anaconda](http://continuum.io/downloads), [Canopy] (https://www.enthought.com/products/canopy/),
+or [Python(x,y)](https://python-xy.github.io/).
+
+In a command-line window, run DxTools with `python dxtools.py`
+
 If you have a python 2.7 installation that you want to keep, you will need to have a separate installation of python 3.
 A simple way to manage different Python environments is to use the  [Anaconda](http://continuum.io/downloads) distribution.
 After installation, in a command window create a Python 2.7 environment with
 `conda create -n py27 python=2.7 anaconda`
 and a Python 3.5 environment with `conda create -n py35 python=3.5 anaconda`.
 Switch from one to another with `activate py27` and `activate py35`.
-Anaconda includes all dependences needed for DxTools.
-Run DxTools with `python dxtools.py`
 
 
 
@@ -39,7 +43,7 @@ in the (Qx,Qy) plane recorded with a series of rocking-curves/omega-scans at var
 
 ### Export options
 Depending on the type of experiment, several data exporting options are available.
-** No transformation is brought to the data. The raw data is rearranged in various formats.**
+*No modification is brought to the intensity values. The raw data is only rearranged in various formats.*
 
 - individual scans: all scans are exported with the looping motor names appended to the file name.
 
@@ -56,7 +60,7 @@ This can be done in 2 ways:
 Note that is only relevant when there is one single peak in the scanned area.
 
 ### Point skipping
-The data range can be cropped for the primary and secondary scanning axes by specifying the number of data points to be removed at the beginning and the end of the scanning range.
+The data range can be cropped along the primary and secondary scanning axes by specifying the number of data points to be removed at the beginning and the end of the scanning ranges.
 This is useful to eliminate artifacts at the edges of the 1D detector or reduce an otherwise excessive scanning range.
 
 ### Supported file formats
