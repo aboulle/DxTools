@@ -139,7 +139,7 @@ def brml_reader(file_name):
                 start = chain.find("Start").text
                 if chain.find("Reference").text != "0":
                     ref = chain.find("Reference").text
-                    start = str(float(ref)-float(start))
+                    start = str(float(ref)+float(start))
                 new_file += 1
 
         for chain in root.findall("./DataRoutes/DataRoute/ScanInformation/ScanAxes/ScanAxisInfo"):
@@ -147,37 +147,37 @@ def brml_reader(file_name):
                 tth = chain.find("Start").text
                 if chain.find("Reference").text != "0":
                     ref = chain.find("Reference").text
-                    tth = str(float(ref)-float(tth))
+                    tth = str(float(ref)+float(tth))
                 #print("tth", tth)
             if chain.get("AxisName") == "Theta":
                 om = chain.find("Start").text
                 if chain.find("Reference").text != "0":
                     ref = chain.find("Reference").text
-                    om = str(float(ref)-float(om))
+                    om = str(float(ref)+float(om))
                 #print("om", om)
             if chain.get("AxisName") == "Chi":
                 chi = chain.find("Start").text
                 if chain.find("Reference").text != "0":
                     ref = chain.find("Reference").text
-                    chi = str(float(ref)-float(chi))
+                    chi = str(float(ref)+float(chi))
                 #print("chi", chi)
             if chain.get("AxisName") == "Phi":
                 phi = chain.find("Start").text
                 if chain.find("Reference").text != "0":
                     ref = chain.find("Reference").text
-                    phi = str(float(ref)-float(phi))
+                    phi = str(float(ref)+float(phi))
                 #print("phi", phi)
             if chain.get("AxisName") == "X":
                 tx = chain.find("Start").text
                 if chain.find("Reference").text != "0":
                     ref = chain.find("Reference").text
-                    tx = str(float(ref)-float(tx))
+                    tx = str(float(ref)+float(tx))
                 #print("tx", tx)
             if chain.get("AxisName") == "Y":
                 ty = chain.find("Start").text
                 if chain.find("Reference").text != "0":
                     ref = chain.find("Reference").text
-                    ty = str(float(ref)-float(ty))
+                    ty = str(float(ref)+float(ty))
                 #print("ty", ty)
 
         for chain in root.findall("./DataRoutes/DataRoute/DataViews/RawDataView/Recording"):
