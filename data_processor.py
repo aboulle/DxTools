@@ -12,6 +12,10 @@ import sys
 from misc import *
 
 def crop_data(input_data, nlines, start, stop, start2, stop2):
+    start = int(start)
+    stop = int(stop)
+    start2 = int(start2)
+    stop2 = int(stop2)
     nlines = int(nlines)
     nscans = int(len(input_data)/nlines)
     data_matrix = input_data.reshape(nscans, nlines)
@@ -37,10 +41,6 @@ def generate_RSM(cleaned, file_name, scantype, line_count, wl, state_log, state_
 
         # Crop data to desired dimensions
         if ((start!=0) or (stop!=0) or (start2!=0) or (stop2!=0)):
-            start = int(start)
-            stop = int(stop)
-            start2 = int(start2)
-            stop2 = int(stop2)
             intensity = crop_data(intensity, line_count, start, stop, start2, stop2)
             om = crop_data(om, line_count, start, stop, start2, stop2)
             offset = crop_data(offset, line_count, start, stop, start2, stop2)
@@ -151,7 +151,7 @@ def generate_Temp(cleaned, file_name, line_count, state_indv, state_matrix, stat
             out_I = column_stack((temperature, int_matrix))
             out_I = row_stack((append([0],angle), out_I))
             savetxt(file_name + '_matrix.txt', out_I.T, fmt = '%10.8f')
-            
+
         if state_indv == 1:
             for i in range(len(temperature)):
                 out_scan = column_stack((angle, int_matrix[i,:]))
@@ -324,8 +324,6 @@ def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, s
             psi = chi
         # Crop data to desired dimensions
         if ((start!=0) or (stop!=0)):
-                start = int(start)
-                stop = int(stop)
                 intensity = crop_data(intensity,line_count, start, stop, 0, 0)
                 angle = crop_data(angle,line_count, start, stop, 0, 0)
                 #chi = crop_data(chi,line_count, start, stop, 0, 0)
@@ -440,10 +438,6 @@ def generate_Pole(cleaned, file_name, scantype, line_count, state_indv, state_an
         status = 1
         # Crop data to desired dimensions
         if ((start!=0) or (stop!=0) or (start2!=0) or (stop2!=0)):
-            start = int(start)
-            stop = int(stop)
-            start2 = int(start2)
-            stop2 = int(stop2)
             intensity = crop_data(intensity, line_count, start, stop, start2, stop2)
             azimuth = crop_data(azimuth, line_count, start, stop, start2, stop2)
             zenith = crop_data(zenith, line_count, start, stop, start2, stop2)
@@ -493,8 +487,6 @@ def generate_Custom(cleaned, file_name, line_count, state_th, state_tth, state_c
     intensity = cleaned[:,9]
     
     if ((start!=0) or (stop!=0)):
-        start = int(start)
-        stop = int(stop)
         temperature = crop_data(temperature,line_count, start, stop, 0, 0)
         chi = crop_data(chi,line_count, start, stop, 0, 0)
         phi = crop_data(phi,line_count, start, stop, 0, 0)
