@@ -130,7 +130,7 @@ def brml_reader(file_name):
                 scan_type = "COUPLED"
             if ("Rocking" in scan_type) or ("rocking" in scan_type):
                 scan_type = "THETA"
-            
+
         for chain in root.findall("./FixedInformation/Instrument/PrimaryTracks/TrackInfoData/MountedOptics/InfoData/Tube/WaveLengthAlpha1"):
             wl = chain.get("Value")
         for chain in root.findall("./DataRoutes/DataRoute/ScanInformation/ScanAxes/ScanAxisInfo"):
@@ -210,8 +210,14 @@ def brml_reader(file_name):
             if check_temperature == 0:
                 for chain in root.findall("./DataRoutes/DataRoute"):
                     intensity = (chain.find("Datum").text).split(',')
+
                 line_count = 0
-                for i in range(len(intensity)-2): #first 2 digits are time and abs. factor
+                for chain in root.findall("./DataRoutes/DataRoute/DataViews/RawDataView/Recording"):
+                    if chain.get("LogicName") == "Counter1D":
+                        n_channels = int(chain.find("Size/X").text)
+
+                int_shift = len(intensity) - n_channels
+                for i in range(n_channels): #the intensity values are shifted to the right by int_shift
                     if i == 0:
                         scanning = float(start)
                     else:
@@ -220,7 +226,7 @@ def brml_reader(file_name):
                     outfile.write("25" + " " + (chi) + " " + (phi)
                                   + " " + (tx) + " " + (ty) + " " + (om)
                                   + " " + (offset) + " " + (tth) + " " + str(scanning)
-                                  + " "  + intensity[i+2] +'\n')
+                                  + " "  + intensity[i+int_shift] +'\n')
             else:
                 return implementation_warning, 0, 0
         
