@@ -211,11 +211,11 @@ def brml_reader(file_name):
                 for chain in root.findall("./DataRoutes/DataRoute"):
                     intensity = (chain.find("Datum").text).split(',')
 
-                line_count = 0
                 for chain in root.findall("./DataRoutes/DataRoute/DataViews/RawDataView/Recording"):
                     if chain.get("LogicName") == "Counter1D":
                         n_channels = int(chain.find("Size/X").text)
 
+                line_count = 0
                 int_shift = len(intensity) - n_channels
                 for i in range(n_channels): #the intensity values are shifted to the right by int_shift
                     if i == 0:
