@@ -32,7 +32,7 @@ def generate_RSM(cleaned, file_name, scantype, line_count, wl, state_log, state_
     bkg = intensity[intensity!=0].min()
 
     # Check data validity
-    if ((offset[1:]-offset[:-1]).sum() == 0) and ((phi[1:]-phi[:-1]).sum() == 0):
+    if ((om[1:]-om[:-1]).sum() == 0) and ((phi[1:]-phi[:-1]).sum() == 0):
         status = 0
     else:
         status = 1

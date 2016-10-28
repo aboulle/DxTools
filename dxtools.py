@@ -746,7 +746,7 @@ class MyApp(Frame):
     
 
 def main():
-    print("Welcome do DxTools")
+    print("Welcome to DxTools")
     root = Tk()
     application = MyApp(root)
     root.mainloop()
