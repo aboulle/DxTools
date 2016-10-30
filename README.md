@@ -2,7 +2,7 @@
 Processing XRD data files recorded with the Bruker D8 diffractometer
 
 ## Installation instructions
-DxTools requires  [python 3] (http://www.python.org), [SciPy](http://www.scipy.org), [Matplotlib](http://www.matplotlib.org).
+DxTools requires  [Python 3] (http://www.python.org), [SciPy](http://www.scipy.org) and [Matplotlib](http://www.matplotlib.org).
 DxTools is not compatible with Python 2.7 and below.
 
 ### Linux
@@ -16,7 +16,7 @@ or [Python(x,y)](https://python-xy.github.io/).
 
 In a command-line window, run DxTools with `python dxtools.py`
 
-If you have a python 2.7 installation that you want to keep, you will need to have a separate installation of python 3.
+If you have a Python 2.7 installation that you want to keep, you will need to have a separate installation of Python 3.
 A simple way to manage different Python environments is to use the  [Anaconda](http://continuum.io/downloads) distribution.
 After installation, in a command window create a Python 2.7 environment with
 `conda create -n py27 python=2.7 anaconda`
