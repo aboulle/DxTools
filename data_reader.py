@@ -105,56 +105,57 @@ def brml_reader(file_name):
         os.system("rm -rf "+ extract_path)
     elif sys.platform == "linux" or sys.platform == "linux2":
         os.system("rm -rf "+ extract_path)
-    
+
     #Extract all RawData*.xml files and MeasurementContainer the brml to temporary unzip file
     with zipfile.ZipFile(file_name,"r") as brml:
         for info in brml.infolist():
-            if ("RawData" in info.filename) or ("MeasurementContainer" in info.filename):
+            #if ("RawData" in info.filename) or ("MeasurementContainer" in info.filename):
+            if ("RawData" in info.filename):
                 brml.extract(info.filename, extract_path)
 
     # Find offsets hidden in MeasurementContained
-    data_path = os.path.join(extract_path, "*0","MeasurementContainer.xml")
-    for file in sorted(glob.glob(data_path)):
-        tree = ET.parse(file)
-        root = tree.getroot()
-        #off_tth_c, off_om_c = "0", "0"
-        for chain in root.findall("./Description/AlignmentData/Data"):
-            motor = chain.get("LogicName")
-            if motor == "Theta":
-                off_om_c = chain.find("PositionOffset").attrib["Value"]
-            if motor == "TwoTheta":
-                off_tth_c = chain.find("PositionOffset").attrib["Value"]
-            if motor == "Chi":
-                off_chi_c = chain.find("PositionOffset").attrib["Value"]
-            if motor == "Phi":
-                off_phi_c = chain.find("PositionOffset").attrib["Value"]
-            if motor == "X":
-                off_tx_c = chain.find("PositionOffset").attrib["Value"]
-            if motor == "Y":
-                off_ty_c = chain.find("PositionOffset").attrib["Value"]
-        
-        ##for chain in root.findall("./Sequences/Sequence/RefineAlignment/Data"):
-        #for chain in root.findall("./BaseMethods/Method/LogicData/DataEntityContainer/Data"):
+    # Update 31/10/2016: this is useless, the offsets are implicitely correct in the RawData files / not in the uxd though
+    # everything related to offsets is commented from now on
+    #data_path = os.path.join(extract_path, "*0","MeasurementContainer.xml")
+    #for file in sorted(glob.glob(data_path)):
+        #tree = ET.parse(file)
+        #root = tree.getroot()
+        ##off_tth_c, off_om_c = "0", "0"
+        #for chain in root.findall("./Description/AlignmentData/Data"):
             #motor = chain.get("LogicName")
             #if motor == "Theta":
-                #off_om = chain.find("PositionOffset").attrib["Value"]
+                #off_om_c = chain.find("PositionOffset").attrib["Value"]
             #if motor == "TwoTheta":
-                #off_tth = chain.find("PositionOffset").attrib["Value"]
+                #off_tth_c = chain.find("PositionOffset").attrib["Value"]
             #if motor == "Chi":
-                #off_chi = chain.find("PositionOffset").attrib["Value"]
+                #off_chi_c = chain.find("PositionOffset").attrib["Value"]
             #if motor == "Phi":
-                #off_phi = chain.find("PositionOffset").attrib["Value"]
+                #off_phi_c = chain.find("PositionOffset").attrib["Value"]
             #if motor == "X":
-                #off_tx = chain.find("PositionOffset").attrib["Value"]
+                #off_tx_c = chain.find("PositionOffset").attrib["Value"]
             #if motor == "Y":
-                #off_ty = chain.find("PositionOffset").attrib["Value"]
+                #off_ty_c = chain.find("PositionOffset").attrib["Value"]
+        ###for chain in root.findall("./Sequences/Sequence/RefineAlignment/Data"):
+        ##for chain in root.findall("./BaseMethods/Method/LogicData/DataEntityContainer/Data"):
+            ##motor = chain.get("LogicName")
+            ##if motor == "Theta":
+                ##off_om = chain.find("PositionOffset").attrib["Value"]
+            ##if motor == "TwoTheta":
+                ##off_tth = chain.find("PositionOffset").attrib["Value"]
+            ##if motor == "Chi":
+                ##off_chi = chain.find("PositionOffset").attrib["Value"]
+            ##if motor == "Phi":
+                ##off_phi = chain.find("PositionOffset").attrib["Value"]
+            ##if motor == "X":
+                ##off_tx = chain.find("PositionOffset").attrib["Value"]
+            ##if motor == "Y":
+                ##off_ty = chain.find("PositionOffset").attrib["Value"]
+        #os.remove(file)
 
-        os.remove(file)
-    
     #Create ouput file
     outfile = open("tmp", "w", encoding='utf8') # Create output data file
     outfile.write("#temperature   khi   phi   x   y   theta   offset   2theta   scanning motor   intensity\n")
-    
+
     # Finds motor, temperature and intensity values
     data_path = os.path.join(extract_path, "*0","*.xml") #reading files in Experiment0 folder
     for file in sorted(glob.glob(data_path), key=file_nb):
@@ -172,50 +173,52 @@ def brml_reader(file_name):
             if ("Rocking" in scan_type) or ("rocking" in scan_type):
                 scan_type = "THETA"
 
-        exp_type = ""
-        for chain in root.findall("./FixedInformation/MethodInformation/InfoData/DesequenceResults/Desequence"):
-            exp_type = chain.get("Reason")
+        #exp_type = "" #Commented because related to offsets. Useless.
+        #for chain in root.findall("./FixedInformation/MethodInformation/InfoData/DesequenceResults/Desequence"):
+            #exp_type = chain.get("Reason")
 
-        if ("L_Re" in exp_type) or ("L_Ab" in exp_type) or ("H_Re" in exp_type) or ("H_Ab" in exp_type):
-            off_tth = off_tth_c
-            off_om = off_om_c
-        else:
-            off_tth = "0"
-            off_om = "0"
-            
-        
+        #if ("L_Re" in exp_type) or ("L_Ab" in exp_type) or ("H_Re" in exp_type) or ("H_Ab" in exp_type):
+            #off_tth = off_tth_c
+            #off_om = off_om_c
+        #else:
+            #off_tth = "0"
+            #off_om = "0"
+
         for chain in root.findall("./FixedInformation/Instrument/PrimaryTracks/TrackInfoData/MountedOptics/InfoData/Tube/WaveLengthAlpha1"):
             wl = chain.get("Value")
         for chain in root.findall("./DataRoutes/DataRoute/ScanInformation/ScanAxes/ScanAxisInfo"):
             if new_file == 0:
-                if chain.get("AxisName") == "TwoTheta": # Apparently the offset is only counted for om and tth is Brukers files. Check.
-                    off_scan = float(off_tth)
-                elif chain.get("AxisName") == "Theta":
-                    off_scan = float(off_om)
-                else:
-                    off_scan = 0
+                #if chain.get("AxisName") == "TwoTheta": #Commented because related to offsets. Useless.
+                    #off_scan = float(off_tth)
+                #elif chain.get("AxisName") == "Theta":
+                    #off_scan = float(off_om)
+                #else:
+                    #off_scan = 0
                 step = chain.find("Increment").text
                 start = chain.find("Start").text
                 ref = chain.find("Reference").text
-                start = str(float(ref)+float(start)-off_scan)
+                #start = str(float(ref)+float(start)-off_scan)
+                start = str(float(ref)+float(start))
                 new_file += 1
 
         for chain in root.findall("./DataRoutes/DataRoute/ScanInformation/ScanAxes/ScanAxisInfo"):
             if chain.get("AxisName") == "TwoTheta":
                 tth = chain.find("Start").text
                 ref = chain.find("Reference").text
-                tth = str(float(ref)+float(tth)-float(off_tth))
+                #tth = str(float(ref)+float(tth)-float(off_tth))
+                tth = str(float(ref)+float(tth))
 
             if chain.get("AxisName") == "Theta":
                 om = chain.find("Start").text
                 ref = chain.find("Reference").text
-                om = str(float(ref)+float(om)-float(off_om))
+                #om = str(float(ref)+float(om)-float(off_om))
+                om = str(float(ref)+float(om))
 
             if chain.get("AxisName") == "Chi":
                 chi = chain.find("Start").text
                 ref = chain.find("Reference").text
                 #chi = str(float(ref)+float(chi)-float(off_chi))
-                chi = str(float(ref)+float(chi)) # Apparently the offset is only counted for om and tth is Brukers files. Strange.
+                chi = str(float(ref)+float(chi))
 
             if chain.get("AxisName") == "Phi":
                 phi = chain.find("Start").text
@@ -235,7 +238,6 @@ def brml_reader(file_name):
                 #ty = str(float(ref)+float(ty)-float(off_ty))
                 ty = str(float(ref)+float(ty))
 
-
         for chain in root.findall("./DataRoutes/DataRoute/DataViews/RawDataView/Recording"):
             if "Temperature" in chain.get("LogicName"):
                 check_temperature = 1
@@ -243,11 +245,11 @@ def brml_reader(file_name):
         for chain in root.findall("./FixedInformation/Drives/InfoData"):
             if chain.get("LogicName") == "TwoTheta":
                 tth = chain.find("Position").attrib["Value"]
-                tth = str(float(tth)-float(off_tth))
-                #print("tth", tth)
+                #tth = str(float(tth)-float(off_tth))
+
             if chain.get("LogicName") == "Theta":
                 om = chain.find("Position").attrib["Value"]
-                om = str(float(om)-float(off_om))
+                #om = str(float(om)-float(off_om))
 
             if chain.get("LogicName") == "Chi":
                 chi = chain.find("Position").attrib["Value"]
