@@ -49,7 +49,7 @@ Depending on the type of experiment, several data exporting options are availabl
 
 - matrix: when the data is 2D, it can be exported in matrix form. First column/row represent the primary and secondary scanning axes.
 
-- 3 columns: when the data is 2D it can also be present in a 3 column format with columns 1 and 2 being the primary and secondary scanning axes.
+- 3 columns: when the data is 2D it can also be presented in a 3 column format with columns 1 and 2 being the primary and secondary scanning axes.
 
 ### Data analysis
 When relevant, the peak position, width and area are plotted vs. the secondary scanning axis.
