@@ -58,7 +58,7 @@ class MyApp(Frame):
         # Create status bar
         #****************************************
         self.status = StatusBar(self)
-        self.status.set("Welcome to Dx tools")
+        self.status.set("Welcome to Dx Tools")
         self.status.pack(side=BOTTOM, fill=X, pady = 2, padx = 5)
         
         #****************************************
