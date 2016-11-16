@@ -7,14 +7,14 @@ DxTools is not compatible with Python 2.7 and below.
 
 ### Linux
 In a terminal run (as root) `apt install python3 python3-scipy python3-matplolib`.
-Run DxTools with `python3 dxtools.py`
+In the DxTools folder, run the program with `python3 dxtools.py`
 
 ### MS Windows
 The most straightforward way to install Python and all required dependencies in Windows is to install 
 a full-featured scientific Python distribution, like [Anaconda](http://continuum.io/downloads), [Canopy] (https://www.enthought.com/products/canopy/),
 or [Python(x,y)](https://python-xy.github.io/).
 
-In a command-line window, run DxTools with `python dxtools.py`
+In a command-line window, move to the DxTools folder and run the program with `python dxtools.py`
 
 If you have a Python 2.7 installation that you want to keep, you will need to have a separate installation of Python 3.
 A simple way to manage different Python environments is to use the  [Anaconda](http://continuum.io/downloads) distribution.
