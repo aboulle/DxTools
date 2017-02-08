@@ -285,13 +285,13 @@ def generate_Xscan(cleaned, file_name, line_count, state_indv, state_matrix, sta
             
             ax = fig.add_subplot(223)
             ax.set_xlabel(r"$Translation\ (mm)$", fontsize = 14)
-            ax.set_ylabel(r"$Integrated intensity\ (Counts)$", fontsize = 14)
+            ax.set_ylabel(r"$Integrated\ intensity\ (Counts)$", fontsize = 14)
             plt.xlim(tscan.min(), tscan.max())
             plt.plot(tscan, fit_p[:,1])
             
             ax = fig.add_subplot(222)
             ax.set_xlabel(r"$Translation\ (mm)$", fontsize = 14)
-            ax.set_ylabel(r"$Peak position\ (deg.)$", fontsize = 14)
+            ax.set_ylabel(r"$Peak\ position\ (deg.)$", fontsize = 14)
             plt.xlim(tscan.min(), tscan.max())
             plt.plot(tscan, fit_p[:,2])
             
