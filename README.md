@@ -14,7 +14,6 @@ The most straightforward way to install Python and all required dependencies in 
 a full-featured scientific Python distribution, like [Anaconda](http://continuum.io/downloads), [Canopy] (https://www.enthought.com/products/canopy/),
 or [Python(x,y)](https://python-xy.github.io/).
 
-In a command-line window, move to the DxTools folder and run the program with `python dxtools.py`
 
 If you have a Python 2.7 installation that you want to keep, you will need to have a separate installation of Python 3.
 A simple way to manage different Python environments is to use the  [Anaconda](http://continuum.io/downloads) distribution.
@@ -23,7 +22,15 @@ After installation, in a command window create a Python 2.7 environment with
 and a Python 3.5 environment with `conda create -n py35 python=3.5 anaconda`.
 Switch from one to another with `activate py27` and `activate py35`.
 
-
+## Usage
+Download DxTools and uncompress the archive to your hard drive.
+In a command-line window, move to the DxTools folder and run the program with `python dxtools.py` (Windows) or `python3 dxtools.py` (Linux).
+The typical workflow with DxTools is the following:
+- Open data from the "File" menu (uxd or brml format)
+- Select the experiment type from the tab bar (see below)
+- Select data processing and data analysis options (see below)
+- Process data
+The processed data files are automatically saved to your hard drive in the same folder as the input data. The figures can be saved from the interface.
 
 ## Features
 DxTools automates data formating for most major laboratory XRD experiments:
