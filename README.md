@@ -30,6 +30,7 @@ The typical workflow with DxTools is the following:
 - Select the experiment type from the tab bar (see below)
 - Select data processing and data analysis options (see below)
 - Process data
+
 The processed data files are automatically saved to your hard drive in the same folder as the input data. The figures can be saved from the interface.
 
 ## Features
