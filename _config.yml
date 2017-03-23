@@ -1,0 +1,8 @@
+title: DxTools
+description: Processing XRD data files recorded with the Bruker D8 diffractometer
+google_analytics: 
+show_downloads: true
+theme: jekyll-theme-modernist
+
+gems:
+  - jekyll-mentions
