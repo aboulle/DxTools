@@ -119,7 +119,7 @@ def generate_RSM(cleaned, file_name, scantype, line_count, wl, state_log, state_
             ax.set_ylabel(r"$Q_z (2 \pi / \AA)$", fontsize=16)
         if inplane == 1:
             ax.set_ylabel(r"$Q_y (2 \pi / \AA)$", fontsize=16)
-        plt.imshow(grid_I.T, extent=(Qx.min(),Qx.max()+step,Qz.min(),Qz.max()+step), origin='lower')
+        plt.imshow(grid_I.T, extent=(Qx.min(),Qx.max()+step,Qz.min(),Qz.max()+step), origin='lower', cmap='jet')
         plt.tight_layout()
         plt.show()
 
@@ -165,7 +165,7 @@ def generate_Temp(cleaned, file_name, line_count, state_indv, state_matrix, stat
             ax0 = fig.add_subplot(211)
             ax0.set_xlabel(r"$Temperature\ (deg.)$", fontsize = 14)
             ax0.set_ylabel(r"$Scanning\ angle\ (deg.)$", fontsize = 14)
-            plt.imshow(log10(int_matrix+bkg).T, extent=(temperature.min(), temperature.max(), angle.min(),angle.max()), origin='lower', aspect="auto")
+            plt.imshow(log10(int_matrix+bkg).T, extent=(temperature.min(), temperature.max(), angle.min(),angle.max()), origin='lower', aspect="auto", cmap='jet')
             ax = fig.add_subplot(212, sharex=ax0)
             ax.set_xlabel(r"$Temperature\ (deg.)$", fontsize = 14)
             ax.set_ylabel(r"$Integrated\ intensity\ (counts)$", fontsize = 14)
@@ -189,7 +189,7 @@ def generate_Temp(cleaned, file_name, line_count, state_indv, state_matrix, stat
             ax0 = fig.add_subplot(221)
             ax0.set_xlabel(r"$Temperature\ (deg.)$", fontsize = 14)
             ax0.set_ylabel(r"$Scanning\ angle\ (deg.)$", fontsize = 14)
-            plt.imshow(log10(int_matrix+bkg).T, extent=(temperature.min(), temperature.max(), angle.min(),angle.max()), origin='lower', aspect="auto")
+            plt.imshow(log10(int_matrix+bkg).T, extent=(temperature.min(), temperature.max(), angle.min(),angle.max()), origin='lower', aspect="auto", cmap='jet')
 
             ax = fig.add_subplot(223)
             ax.set_xlabel(r"$Temperature\ (deg.)$", fontsize = 14)
@@ -258,7 +258,7 @@ def generate_Xscan(cleaned, file_name, line_count, state_indv, state_matrix, sta
             ax0 = fig.add_subplot(211)
             ax0.set_xlabel(r"$Translation\ (mm)$", fontsize = 14)
             ax0.set_ylabel(r"$Scanning\ angle\ (deg.)$", fontsize = 14)
-            plt.imshow(log10(int_matrix+bkg).T, extent=(tscan.min(), tscan.max(), angle.min(),angle.max()), origin='lower', aspect="auto")
+            plt.imshow(log10(int_matrix+bkg).T, extent=(tscan.min(), tscan.max(), angle.min(),angle.max()), origin='lower', aspect="auto", cmap='jet')
             ax = fig.add_subplot(212, sharex=ax0)
             ax.set_xlabel(r"$Translation\ (mm)$", fontsize = 14)
             ax.set_ylabel(r"$Integrated\ intensity\ (counts)$", fontsize = 14)
@@ -281,7 +281,7 @@ def generate_Xscan(cleaned, file_name, line_count, state_indv, state_matrix, sta
             ax0 = fig.add_subplot(221)
             ax0.set_xlabel(r"$Translation\ (mm)$", fontsize = 14)
             ax0.set_ylabel(r"$Scanning\ angle\ (deg.)$", fontsize = 14)
-            plt.imshow(log10(int_matrix+bkg).T, extent=(tscan.min(), tscan.max(), angle.min(),angle.max()), origin='lower', aspect="auto")
+            plt.imshow(log10(int_matrix+bkg).T, extent=(tscan.min(), tscan.max(), angle.min(),angle.max()), origin='lower', aspect="auto", cmap='jet')
             
             ax = fig.add_subplot(223)
             ax.set_xlabel(r"$Translation\ (mm)$", fontsize = 14)
