@@ -1,6 +1,3 @@
-# DxTools
-Processing XRD data files recorded with the Bruker D8 diffractometer
-
 ## Installation instructions
 DxTools requires [Python 3] (http://www.python.org), [SciPy](http://www.scipy.org) and [Matplotlib](http://www.matplotlib.org).
 DxTools is not compatible with Python 2.7 and below.
@@ -31,22 +28,19 @@ The typical workflow with DxTools is the following:
 - Select data processing and data analysis options (see below)
 - Process data
 
-The processed data files are automatically saved to your hard drive in the same folder as the input data. The figures can be saved from the interface.
+The processed data files are automatically saved to your hard drive in the same folder as the input data.
+The figures can be saved from the interface. While processing, a temporary tmp file (containg all raw data) is written in the DxTools folder.
+It is automatically deleted upon closing.
 
 ## Features
 DxTools automates data formating for most major laboratory XRD experiments:
 - Reciprocal space maps: in the (Qx,Qz) plane recorded with a 1D detector,
 or recorded with a series of 2theta/theta scans with varying offset;
 in the (Qx,Qy) plane recorded with a series of rocking-curves/omega-scans at varying phi angles.
-
 - Temperature experiments: any angular scan vs. temperature.
-
 - X(Y) scan: any angular scan vs. a translation in X or Y.
-
 - Sin^2 psi: recorded either in the conventional chi/psi-tilting geometry or using the variable-incidence (fixed-inclination) method.
-
 - Pole figure: recorded with open detector while rotating chi and phi.
-
 - Custom: any angular/translation scan looped over any other motor or temperature.
 
 ### Export options
@@ -54,9 +48,7 @@ Depending on the type of experiment, several data exporting options are availabl
 *No modification is brought to the intensity values. The raw data is only rearranged in various formats.*
 
 - individual scans: all scans are exported with the looping motor names appended to the file name.
-
 - matrix: when the data is 2D, it can be exported in matrix form. First column/row represent the primary and secondary scanning axes.
-
 - 3 columns: when the data is 2D it can also be presented in a 3 column format with columns 1 and 2 being the primary and secondary scanning axes.
 
 ### Data analysis
