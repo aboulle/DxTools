@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 DxTools: Processing XRD data files recorded with the Bruker D8 diffractometer
-Copyright 2016, Alexandre  Boulle
+Copyright 2016-2017 Alexandre  Boulle
 alexandre.boulle@unilim.fr
 """
 from tkinter import *
@@ -535,7 +535,7 @@ class MyApp(Frame):
     #Function definitions
     #****************************************
     def about(self):
-        messagebox.showinfo("About", "Dx Tools by A. Boulle.\n alexandre.boulle@unilim.fr")
+        messagebox.showinfo("About", "Dx Tools by A. Boulle.\nalexandre.boulle@unilim.fr\nhttps://aboulle.github.io/DxTools/")
 
     def warning(self):
         messagebox.showwarning("Warning", "Not yet implemented.")
