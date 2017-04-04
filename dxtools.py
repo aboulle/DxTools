@@ -535,7 +535,7 @@ class MyApp(Frame):
     #Function definitions
     #****************************************
     def about(self):
-        messagebox.showinfo("About", "Dx Tools by A. Boulle.\nalexandre.boulle@unilim.fr\nhttps://aboulle.github.io/DxTools/")
+        messagebox.showinfo("About", "Dx Tools by A. Boulle.\nalexandre.boulle@unilim.fr\naboulle.github.io/DxTools")
 
     def warning(self):
         messagebox.showwarning("Warning", "Not yet implemented.")
