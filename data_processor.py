@@ -311,6 +311,8 @@ def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, s
     angle = cleaned[:,8]
     intensity = cleaned[:,9]
     bkg = intensity[intensity!=0].min()
+    startpsi=int(startpsi)
+    stoppsi=int(stoppsi)
     
     if ((chi[1:]-chi[:-1]).sum()==0) and ((offset[1:]-offset[:-1]).sum()== 0):
         status = 0
