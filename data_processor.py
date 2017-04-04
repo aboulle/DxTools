@@ -175,10 +175,10 @@ def generate_Temp(cleaned, file_name, line_count, state_indv, state_matrix, stat
         # Fit diffraction profiles with a pseudo Voigt + plotting
         else:
             outfile = open(file_name+ "_fit_params.txt", "w")
-            outfile.write("#temperature   area   position   FWHM\n")
+            outfile.write("#temperature   area esd   position esd   FWHM esd\n")
             for i in range(len(temperature)):
-                p = pVfit_param(angle,int_matrix[i,:])
-                outfile.write(str(temperature[i]) + " " + str(pVoigt_area(p)) + " "+ str(p[1]) + " " + str(p[2]) + "\n")
+                p, err = pVfit_param_err(angle,int_matrix[i,:])
+                outfile.write(str(temperature[i])+" "+str(pVoigt_area(p))+" "+str(pVoigt_area_err(p,err))+" "+str(p[1])+" "+str(err[1])+" "+str(p[2])+" "+ str(err[2]) + "\n")
                 #plt.plot(angle, int_matrix[i,:], 'ok', angle, pVoigt(angle, p), '-r')
                 #plt.show() #uncomment to check fits
             outfile.close()
@@ -201,13 +201,13 @@ def generate_Temp(cleaned, file_name, line_count, state_indv, state_matrix, stat
             ax.set_xlabel(r"$Temperature\ (deg.)$", fontsize = 14)
             ax.set_ylabel(r"$Peak\ position\ (deg.)$", fontsize = 14)
             plt.xlim(temperature.min(), temperature.max())
-            plt.plot(temperature, fit_p[:,2])
+            plt.plot(temperature, fit_p[:,3])
 
             ax = fig.add_subplot(224)
             ax.set_xlabel(r"$Temperature\ (deg.)$", fontsize = 14)
             ax.set_ylabel(r"$FWHM\ (deg.)$", fontsize = 14)
             plt.xlim(temperature.min(), temperature.max())
-            plt.plot(temperature, fit_p[:,3])
+            plt.plot(temperature, fit_p[:,5])
             plt.tight_layout()
         plt.show()
     return status
@@ -267,10 +267,10 @@ def generate_Xscan(cleaned, file_name, line_count, state_indv, state_matrix, sta
             plt.tight_layout()
         else:
             outfile = open(file_name+ "_fitparams.txt", "w")
-            outfile.write("#translation   area   position   FWHM\n")
+            outfile.write("#translation   area esd   position esd   FWHM esd\n")
             for i in range(len(tscan)):
-                p = pVfit_param(angle,int_matrix[i,:])
-                outfile.write(str(tscan[i]) + " " + str(pVoigt_area(p)) + " "+ str(p[1]) + " " + str(p[2]) + "\n")
+                p, err = pVfit_param_err(angle,int_matrix[i,:])
+                outfile.write(str(tscan[i])+" "+str(pVoigt_area(p))+" "+str(pVoigt_area_err(p,err))+" "+str(p[1])+" "+str(err[1])+" "+str(p[2])+" "+ str(err[2]) + "\n")
                 #plt.plot(angle, int_matrix[i,:], 'ok', angle, pVoigt(angle, p), '-r')
                 #plt.show() #uncomment to check fits
             outfile.close()
@@ -293,13 +293,13 @@ def generate_Xscan(cleaned, file_name, line_count, state_indv, state_matrix, sta
             ax.set_xlabel(r"$Translation\ (mm)$", fontsize = 14)
             ax.set_ylabel(r"$Peak\ position\ (deg.)$", fontsize = 14)
             plt.xlim(tscan.min(), tscan.max())
-            plt.plot(tscan, fit_p[:,2])
+            plt.plot(tscan, fit_p[:,3])
             
             ax = fig.add_subplot(224)
             ax.set_xlabel(r"$Translation\ (mm)$", fontsize = 14)
             ax.set_ylabel(r"$FWHM\ (deg.)$", fontsize = 14)
             plt.xlim(tscan.min(), tscan.max())
-            plt.plot(tscan, fit_p[:,3])
+            plt.plot(tscan, fit_p[:,5])
             plt.tight_layout()
         plt.show()
     return status
