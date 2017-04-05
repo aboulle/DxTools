@@ -260,7 +260,7 @@ def generate_Xscan(cleaned, file_name, line_count, state_indv, state_matrix, sta
 
         if state_fit == 0:
             out_Ii = int_matrix.sum(axis=1)
-            savetxt(file_name + "int_I.txt", column_stack((tscan, out_Ii)), fmt = '%10.8f')
+            savetxt(file_name + "_int_I.txt", column_stack((tscan, out_Ii)), fmt = '%10.8f')
             #writes individual files
             if state_indv == 1:
                 for i in range(len(tscan)):
@@ -366,7 +366,7 @@ def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, s
                 #savetxt(file_name + "_Scan"+str(i+1)+" PSI="+str(round(psi[i],2))+" PHI="+str(round(phi[i],2))+".txt", out_scan, fmt = '%10.8f')
 
         if state_fit == 0:
-            #write individual files
+            #writes individual files
             if state_indv == 1:
                 for i in range(shape(int_matrix)[0]):
                     out_scan = column_stack((angle, int_matrix[i,:]))
@@ -400,9 +400,20 @@ def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, s
             plt.legend()
             plt.tight_layout()
 
-            out_I = column_stack((psi, pos))
-            out_I = row_stack((append([0],phi), out_I))
-            savetxt(file_name + '_position.txt', out_I, fmt = '%10.8f')
+            #export results
+            outfile = open(file_name+ "_position.txt", "w")
+            outfile.write("#Psi    ")
+            for i in range(len(phi)):
+                outfile.write("position(Phi="+str(phi[i])+")   ")
+            outfile.write("\n")
+            for j in range(len(psi)):
+                outfile.write(str(psi[j])+"    ")
+                for k in range(len(phi)):
+                    outfile.write(str(pos[j,k])+"    ")
+                outfile.write("\n")
+            outfile.write("\n")
+            outfile.close()
+
         else:
             plt.ion()
             dif_phi = phi[1:]-phi[:-1]
@@ -410,13 +421,15 @@ def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, s
             psi = psi[:int(len(psi)/n_phi):] # resize psi and phi to their actual size
             phi = phi[::int(len(psi))]
             pos = zeros(shape(int_matrix)[0])
+            err_pos = zeros(shape(int_matrix)[0])
             fig=plt.figure()
             ax0=fig.add_subplot(211)
             ax0.set_xlabel(r"$Angle\ (deg.)$", fontsize = 14)
             ax0.set_ylabel(r"$Intensity\ (counts)$", fontsize = 14)
             for i in range(len(pos)):
-                p = pVfit_param(angle,int_matrix[i,:])
+                p, err = pVfit_param_err(angle,int_matrix[i,:])
                 pos[i] = p[1]
+                err_pos[i] = err[1]
                 plt.plot(angle, int_matrix[i,:], 'ok', angle, pVoigt(angle, p), '-r')
                 #write individual files (exp and fit)
                 if state_indv == 1:
@@ -424,6 +437,7 @@ def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, s
                     out_scan = column_stack((out_scan, pVoigt(angle, p)))
                     savetxt(file_name + "_Scan"+str(i+1)+" PSI="+str(round(psi[int(i%len(psi))],2))+" PHI="+str(round(phi[int(i//len(psi))],2))+".txt", out_scan, fmt = '%10.8f')
             pos=pos.reshape(len(psi),len(phi))
+            err_pos=err_pos.reshape(len(psi),len(phi))
             dspacing = wl / (2*sin(pos*pi/360))
 
             ax0 = fig.add_subplot(212)
@@ -436,9 +450,23 @@ def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, s
             plt.rcParams['legend.loc'] = 'best'
             plt.legend()
             plt.tight_layout()
-            out_I = column_stack((psi, pos))
-            out_I = row_stack((append([0],phi), out_I))
-            savetxt(file_name + '_position_fit.txt', out_I, fmt = '%10.8f')
+            #out_I = column_stack((psi, pos))
+            #out_I = row_stack((append([0],phi), out_I))
+            #savetxt(file_name + '_position_fit.txt', out_I, fmt = '%10.8f')
+            
+            #export results
+            outfile = open(file_name+ "_position_fit.txt", "w")
+            outfile.write("#Psi    ")
+            for i in range(len(phi)):
+                outfile.write("position(Phi="+str(phi[i])+")   esd    ")
+            outfile.write("\n")
+            for j in range(len(psi)):
+                outfile.write(str(psi[j])+"    ")
+                for k in range(len(phi)):
+                    outfile.write(str(pos[j,k])+"    "+str(err_pos[j,k])+"    ")
+                outfile.write("\n")
+            outfile.write("\n")
+            outfile.close()
 
     return status
 
