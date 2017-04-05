@@ -1,5 +1,5 @@
 ## Installation instructions
-DxTools requires [Python 3] (http://www.python.org), [SciPy](http://www.scipy.org) and [Matplotlib](http://www.matplotlib.org).
+DxTools requires [Python 3](http://www.python.org), [SciPy](http://www.scipy.org) and [Matplotlib](http://www.matplotlib.org).
 DxTools is not compatible with Python 2.7 and below.
 
 ### Linux
@@ -8,7 +8,7 @@ In the DxTools folder, run the program with `python3 dxtools.py`
 
 ### MS Windows
 The most straightforward way to install Python and all required dependencies in Windows is to install 
-a full-featured scientific Python distribution, like [Anaconda](http://continuum.io/downloads), [Canopy] (https://www.enthought.com/products/canopy/),
+a full-featured scientific Python distribution, like [Anaconda](http://continuum.io/downloads), [Canopy](https://www.enthought.com/products/canopy/),
 or [Python(x,y)](https://python-xy.github.io/).
 
 
