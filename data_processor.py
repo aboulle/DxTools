@@ -360,12 +360,18 @@ def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, s
         angle = angle[:int(line_count):]
         int_matrix = intensity.reshape(int(len(intensity)/line_count), int(line_count))
 
-        if state_indv == 1:
-            for i in range(shape(int_matrix)[0]):
-                out_scan = column_stack((angle, int_matrix[i,:]))
-                savetxt(file_name + "_Scan"+str(i+1)+" PSI="+str(round(psi[i],2))+" PHI="+str(round(phi[i],2))+".txt", out_scan, fmt = '%10.8f')
+        #if state_indv == 1:
+            #for i in range(shape(int_matrix)[0]):
+                #out_scan = column_stack((angle, int_matrix[i,:]))
+                #savetxt(file_name + "_Scan"+str(i+1)+" PSI="+str(round(psi[i],2))+" PHI="+str(round(phi[i],2))+".txt", out_scan, fmt = '%10.8f')
 
         if state_fit == 0:
+            #write individual files
+            if state_indv == 1:
+                for i in range(shape(int_matrix)[0]):
+                    out_scan = column_stack((angle, int_matrix[i,:]))
+                    savetxt(file_name + "_Scan"+str(i+1)+" PSI="+str(round(psi[i],2))+" PHI="+str(round(phi[i],2))+".txt", out_scan, fmt = '%10.8f')
+
             plt.ion()
             dif_phi = phi[1:]-phi[:-1]
             n_phi = 1+len(dif_phi[dif_phi!=0]) #count how many values of phi
@@ -382,7 +388,6 @@ def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, s
 
             pos=pos.reshape(len(psi),len(phi))
             dspacing = wl / (2*sin(pos*pi/360))
-            print(shape(pos))
 
             ax0 = fig.add_subplot(212)
             ax0.set_xlabel(r"$\sin^2 \psi$", fontsize = 14)
@@ -394,7 +399,7 @@ def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, s
             plt.rcParams['legend.loc'] = 'best'
             plt.legend()
             plt.tight_layout()
-            
+
             out_I = column_stack((psi, pos))
             out_I = row_stack((append([0],phi), out_I))
             savetxt(file_name + '_position.txt', out_I, fmt = '%10.8f')
@@ -413,6 +418,11 @@ def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, s
                 p = pVfit_param(angle,int_matrix[i,:])
                 pos[i] = p[1]
                 plt.plot(angle, int_matrix[i,:], 'ok', angle, pVoigt(angle, p), '-r')
+                #write individual files (exp and fit)
+                if state_indv == 1:
+                    out_scan = column_stack((angle, int_matrix[i,:]))
+                    out_scan = column_stack((out_scan, pVoigt(angle, p)))
+                    savetxt(file_name + "_Scan"+str(i+1)+" PSI="+str(round(psi[int(i%len(psi))],2))+" PHI="+str(round(phi[int(i//len(psi))],2))+".txt", out_scan, fmt = '%10.8f')
             pos=pos.reshape(len(psi),len(phi))
             dspacing = wl / (2*sin(pos*pi/360))
 
