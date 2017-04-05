@@ -152,14 +152,17 @@ def generate_Temp(cleaned, file_name, line_count, state_indv, state_matrix, stat
             out_I = row_stack((append([0],angle), out_I))
             savetxt(file_name + '_matrix.txt', out_I.T, fmt = '%10.8f')
 
-        if state_indv == 1:
-            for i in range(len(temperature)):
-                out_scan = column_stack((angle, int_matrix[i,:]))
-                savetxt(file_name + "_Scan"+str(i+1)+" T="+str(int(temperature[i]))+".txt", out_scan, fmt = '%10.8f')
         # Compute integrated intensity + plotting
         if state_fit == 0:
             out_Ii = int_matrix.sum(axis=1)
+            #writes result file
             savetxt(file_name + "_int_I.txt", column_stack((temperature, out_Ii)), fmt = '%10.8f')
+            #writes individual files
+            if state_indv == 1:
+                for i in range(len(temperature)):
+                    out_scan = column_stack((angle, int_matrix[i,:]))
+                    savetxt(file_name + "_Scan"+str(i+1)+" T="+str(round(temperature[i],2))+".txt", out_scan, fmt = '%10.8f')
+            
             plt.ion()
             fig=plt.figure()
             ax0 = fig.add_subplot(211)
@@ -181,6 +184,11 @@ def generate_Temp(cleaned, file_name, line_count, state_indv, state_matrix, stat
                 outfile.write(str(temperature[i])+" "+str(pVoigt_area(p))+" "+str(pVoigt_area_err(p,err))+" "+str(p[1])+" "+str(err[1])+" "+str(p[2])+" "+ str(err[2]) + "\n")
                 #plt.plot(angle, int_matrix[i,:], 'ok', angle, pVoigt(angle, p), '-r')
                 #plt.show() #uncomment to check fits
+                #writes individual files (exp and fit)
+                if state_indv == 1:
+                    out_scan = column_stack((angle, int_matrix[i,:]))
+                    out_scan = column_stack((out_scan, pVoigt(angle, p)))
+                    savetxt(file_name + "_Scan"+str(i+1)+" T="+str(round(temperature[i],2))+".txt", out_scan, fmt = '%10.8f')
             outfile.close()
 
             fit_p = loadtxt(file_name.split(".")[0]+ "_fit_params.txt")
@@ -245,14 +253,20 @@ def generate_Xscan(cleaned, file_name, line_count, state_indv, state_matrix, sta
             out_I = row_stack((append([0],angle), out_I))
             savetxt(file_name + '_matrix.txt', out_I.T, fmt = '%10.8f')
 
-        if state_indv == 1:
-            for i in range(len(tscan)):
-                out_scan = column_stack((angle, int_matrix[i,:]))
-                savetxt(file_name + "_Scan"+str(i+1)+" Tr="+str(int(tscan[i]))+".txt", out_scan, fmt = '%10.8f')
+        #if state_indv == 1:
+            #for i in range(len(tscan)):
+                #out_scan = column_stack((angle, int_matrix[i,:]))
+                #savetxt(file_name + "_Scan"+str(i+1)+" Tr="+str(int(tscan[i]))+".txt", out_scan, fmt = '%10.8f')
 
         if state_fit == 0:
             out_Ii = int_matrix.sum(axis=1)
-            savetxt(file_name + "intT.txt", column_stack((tscan, out_Ii)), fmt = '%10.8f')
+            savetxt(file_name + "int_I.txt", column_stack((tscan, out_Ii)), fmt = '%10.8f')
+            #writes individual files
+            if state_indv == 1:
+                for i in range(len(tscan)):
+                    out_scan = column_stack((angle, int_matrix[i,:]))
+                    savetxt(file_name + "_Scan"+str(i+1)+" Tr="+str(round(tscan[i],2))+".txt", out_scan, fmt = '%10.8f')
+            
             plt.ion()
             fig=plt.figure()
             ax0 = fig.add_subplot(211)
@@ -273,8 +287,13 @@ def generate_Xscan(cleaned, file_name, line_count, state_indv, state_matrix, sta
                 outfile.write(str(tscan[i])+" "+str(pVoigt_area(p))+" "+str(pVoigt_area_err(p,err))+" "+str(p[1])+" "+str(err[1])+" "+str(p[2])+" "+ str(err[2]) + "\n")
                 #plt.plot(angle, int_matrix[i,:], 'ok', angle, pVoigt(angle, p), '-r')
                 #plt.show() #uncomment to check fits
+                #writes individual files (exp + fit)
+                if state_indv == 1:
+                    out_scan = column_stack((angle, int_matrix[i,:]))
+                    out_scan = column_stack((out_scan, pVoigt(angle, p)))
+                    savetxt(file_name + "_Scan"+str(i+1)+" Tr="+str(round(tscan[i],2))+".txt", out_scan, fmt = '%10.8f')
             outfile.close()
-            
+
             fit_p = loadtxt(file_name.split(".")[0]+ "_fitparams.txt")
             plt.ion()
             fig=plt.figure()
@@ -344,7 +363,7 @@ def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, s
         if state_indv == 1:
             for i in range(shape(int_matrix)[0]):
                 out_scan = column_stack((angle, int_matrix[i,:]))
-                savetxt(file_name + "_Scan"+str(i+1)+" PSI="+str(int(psi[i]))+".txt", out_scan, fmt = '%10.8f')
+                savetxt(file_name + "_Scan"+str(i+1)+" PSI="+str(round(psi[i],2))+" PHI="+str(round(phi[i],2))+".txt", out_scan, fmt = '%10.8f')
 
         if state_fit == 0:
             plt.ion()
@@ -363,6 +382,7 @@ def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, s
 
             pos=pos.reshape(len(psi),len(phi))
             dspacing = wl / (2*sin(pos*pi/360))
+            print(shape(pos))
 
             ax0 = fig.add_subplot(212)
             ax0.set_xlabel(r"$\sin^2 \psi$", fontsize = 14)
@@ -461,7 +481,7 @@ def generate_Pole(cleaned, file_name, scantype, line_count, state_indv, state_an
         if state_indv == 1:
             for i in range(shape(int_matrix)[0]):
                 out_scan = column_stack((azimuth, int_matrix[i,:]))
-                savetxt(file_name + "_Scan"+str(i+1)+" PSI="+str(int(zenith[i]))+".txt", out_scan, fmt = '%10.8f')
+                savetxt(file_name + "_Scan"+str(i+1)+" PSI="+str(round(zenith[i],2))+".txt", out_scan, fmt = '%10.8f')
 
         if state_angmat == 1:
             out_matrix = column_stack((zenith, int_matrix))
@@ -515,19 +535,19 @@ def generate_Custom(cleaned, file_name, line_count, state_th, state_tth, state_c
         out_scan = column_stack((angle, int_matrix[i,:]))
         name = file_name + "_Scan"+str(i)
         if state_temp == 1:
-            name += " T= " + str(temperature[i])
+            name += " T= " + str(round(temperature[i],2))
         if state_chi == 1:
-            name += " CHI= " + str(chi[i])
-        if state_tth == 1:
-            name += " PHI= " + str(phi[i])
+            name += " CHI= " + str(round(chi[i],2))
+        if state_phi == 1:
+            name += " PHI= " + str(round(phi[i],2))
         if state_x == 1:
-            name += " X= " + str(tx[i])
+            name += " X= " + str(round(tx[i],2))
         if state_y == 1:
-            name += " Y= " + str(ty[i])
+            name += " Y= " + str(round(ty[i],2))
         if state_th == 1:
-            name += " TH= " + str(om[i])
+            name += " TH= " + str(round(om[i],3))
         if state_tth == 1:
-            name += " TTH= " + str(tth[i])
+            name += " TTH= " + str(round(tth[i],3))
         savetxt(name+".txt", out_scan, fmt = '%10.8f')
     
     return 1
