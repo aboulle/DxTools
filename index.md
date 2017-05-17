@@ -1,4 +1,4 @@
-Download manual [here](https://doi.org/10.1107/S1600576717005192)
+**Download manual [here](https://doi.org/10.1107/S1600576717005192).**
 
 ## Installation instructions
 DxTools requires [Python 3](http://www.python.org), [SciPy](http://www.scipy.org) and [Matplotlib](http://www.matplotlib.org).
