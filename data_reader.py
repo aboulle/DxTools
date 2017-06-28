@@ -106,57 +106,63 @@ def brml_reader(file_name):
     elif sys.platform == "linux" or sys.platform == "linux2":
         os.system("rm -rf "+ extract_path)
 
-    #Extract all RawData*.xml files and MeasurementContainer the brml to temporary unzip file
+    #Extract all RawData*.xml files and InstructionContainer the brml to temporary unzip file
     with zipfile.ZipFile(file_name,"r") as brml:
         for info in brml.infolist():
-            #if ("RawData" in info.filename) or ("MeasurementContainer" in info.filename):
-            if ("RawData" in info.filename):
+            if ("RawData" in info.filename) or ("InstructionContainer" in info.filename):
+            #if ("RawData" in info.filename):
                 brml.extract(info.filename, extract_path)
 
-    # Find offsets hidden in MeasurementContained
-    # Update 31/10/2016: this is useless, the offsets are implicitely correct in the RawData files / not in the uxd though
-    # everything related to offsets is commented from now on
-    #data_path = os.path.join(extract_path, "*0","MeasurementContainer.xml")
-    #for file in sorted(glob.glob(data_path)):
-        #tree = ET.parse(file)
-        #root = tree.getroot()
-        ##off_tth_c, off_om_c = "0", "0"
-        #for chain in root.findall("./Description/AlignmentData/Data"):
-            #motor = chain.get("LogicName")
-            #if motor == "Theta":
-                #off_om_c = chain.find("PositionOffset").attrib["Value"]
-            #if motor == "TwoTheta":
-                #off_tth_c = chain.find("PositionOffset").attrib["Value"]
-            #if motor == "Chi":
-                #off_chi_c = chain.find("PositionOffset").attrib["Value"]
-            #if motor == "Phi":
-                #off_phi_c = chain.find("PositionOffset").attrib["Value"]
-            #if motor == "X":
-                #off_tx_c = chain.find("PositionOffset").attrib["Value"]
-            #if motor == "Y":
-                #off_ty_c = chain.find("PositionOffset").attrib["Value"]
-        ###for chain in root.findall("./Sequences/Sequence/RefineAlignment/Data"):
-        ##for chain in root.findall("./BaseMethods/Method/LogicData/DataEntityContainer/Data"):
-            ##motor = chain.get("LogicName")
-            ##if motor == "Theta":
-                ##off_om = chain.find("PositionOffset").attrib["Value"]
-            ##if motor == "TwoTheta":
-                ##off_tth = chain.find("PositionOffset").attrib["Value"]
-            ##if motor == "Chi":
-                ##off_chi = chain.find("PositionOffset").attrib["Value"]
-            ##if motor == "Phi":
-                ##off_phi = chain.find("PositionOffset").attrib["Value"]
-            ##if motor == "X":
-                ##off_tx = chain.find("PositionOffset").attrib["Value"]
-            ##if motor == "Y":
-                ##off_ty = chain.find("PositionOffset").attrib["Value"]
-        #os.remove(file)
+    # Initialize all offsets to 0
+    off_tth = off_om = off_phi = off_chi = off_tx = off_ty = 0
+    
+    #Modification June 2017
+    #In some RawData.xml files, wavelength and static motors are missing.
+    #Find wl and static motors in MeasurementContainer.xml
+    data_path = os.path.join(extract_path, "*0","InstructionContainer.xml")
+    for file in sorted(glob.glob(data_path)):
+        tree = ET.parse(file)
+        root = tree.getroot()
+        for chain in root.findall("./ComparisonMethod/HrxrdAlignmentData"):
+            wl = chain.find("WaveLength").attrib["Value"]
+
+        for chain in root.findall("./ComparisonMethod/HrxrdAlignmentData/Data"):
+            if chain.get("LogicName") == "TwoTheta":
+                tth = chain.find("TheoreticalPosition").attrib["Value"]
+                off_tth = chain.find("PositionOffset").attrib["Value"]
+                tth = str(float(tth)-float(off_tth))
+
+            if chain.get("LogicName") == "Theta":
+                om = chain.find("TheoreticalPosition").attrib["Value"]
+                off_om = chain.find("PositionOffset").attrib["Value"]
+                om = str(float(om)-float(off_om))
+
+            if chain.get("LogicName") == "Chi":
+                chi = chain.find("TheoreticalPosition").attrib["Value"]
+                off_chi = chain.find("PositionOffset").attrib["Value"]
+                chi = str(float(chi)-float(off_chi))
+
+            if chain.get("LogicName") == "Phi":
+                phi = chain.find("TheoreticalPosition").attrib["Value"]
+                off_phi = chain.find("PositionOffset").attrib["Value"]
+                phi = str(float(phi)-float(off_phi))
+
+            if chain.get("LogicName") == "X":
+                tx = chain.find("TheoreticalPosition").attrib["Value"]
+                off_tx = chain.find("PositionOffset").attrib["Value"]
+                tx = str(float(tx)-float(off_tx))
+
+            if chain.get("LogicName") == "Y":
+                ty = chain.find("TheoreticalPosition").attrib["Value"]
+                off_ty = chain.find("PositionOffset").attrib["Value"]
+                ty = str(float(ty)-float(off_ty))
+        os.remove(file)
 
     #Create ouput file
     outfile = open("tmp", "w", encoding='utf8') # Create output data file
     outfile.write("#temperature   khi   phi   x   y   theta   offset   2theta   scanning motor   intensity\n")
 
-    # Finds motor, temperature and intensity values
+    # Finds scan type, wl, motors, temperature and intensity values in RawData.xml
     data_path = os.path.join(extract_path, "*0","*.xml") #reading files in Experiment0 folder
     for file in sorted(glob.glob(data_path), key=file_nb):
         new_file = 0
@@ -164,7 +170,8 @@ def brml_reader(file_name):
         #parsing XML file
         tree = ET.parse(file) 
         root = tree.getroot()
-        for chain in root.findall("./DataRoutes/DataRoute/ScanInformation"):
+        #obtain scan type
+        for chain in (root.findall("./DataRoutes/DataRoute/ScanInformation") or root.findall("./ScanInformation")):
             scan_type = chain.get("VisibleName")
             if ("PSD" in scan_type) or ("Psd" in scan_type):
                 scan_type = "PSDFIXED"
@@ -173,109 +180,100 @@ def brml_reader(file_name):
             if ("Rocking" in scan_type) or ("rocking" in scan_type):
                 scan_type = "THETA"
 
-        #exp_type = "" #Commented because related to offsets. Useless.
-        #for chain in root.findall("./FixedInformation/MethodInformation/InfoData/DesequenceResults/Desequence"):
-            #exp_type = chain.get("Reason")
-
-        #if ("L_Re" in exp_type) or ("L_Ab" in exp_type) or ("H_Re" in exp_type) or ("H_Ab" in exp_type):
-            #off_tth = off_tth_c
-            #off_om = off_om_c
-        #else:
-            #off_tth = "0"
-            #off_om = "0"
-
+        #Find wl in RawData.xml
         for chain in root.findall("./FixedInformation/Instrument/PrimaryTracks/TrackInfoData/MountedOptics/InfoData/Tube/WaveLengthAlpha1"):
             wl = chain.get("Value")
-        for chain in root.findall("./DataRoutes/DataRoute/ScanInformation/ScanAxes/ScanAxisInfo"):
+
+        # Find the fast-scanning axis
+        for chain in (root.findall("./DataRoutes/DataRoute/ScanInformation/ScanAxes/ScanAxisInfo") or root.findall("./ScanInformation/ScanAxes/ScanAxisInfo")):
             if new_file == 0:
-                #if chain.get("AxisName") == "TwoTheta": #Commented because related to offsets. Useless.
-                    #off_scan = float(off_tth)
-                #elif chain.get("AxisName") == "Theta":
-                    #off_scan = float(off_om)
-                #else:
-                    #off_scan = 0
+                if chain.get("AxisName") == "TwoTheta": #Added offset correction / June 2017. Only relevant if offset in InstructionContainer. 0 otherwise.
+                    off_scan = float(off_tth)
+                elif chain.get("AxisName") == "Theta":
+                    off_scan = float(off_om)
+                else:
+                    off_scan = 0
                 step = chain.find("Increment").text
                 start = chain.find("Start").text
                 ref = chain.find("Reference").text
-                #start = str(float(ref)+float(start)-off_scan)
-                start = str(float(ref)+float(start))
+                start = str(float(ref)+float(start)-off_scan)  #Added offset correction / June 2017.
+                #start = str(float(ref)+float(start))
                 new_file += 1
 
-        for chain in root.findall("./DataRoutes/DataRoute/ScanInformation/ScanAxes/ScanAxisInfo"):
+        for chain in (root.findall("./DataRoutes/DataRoute/ScanInformation/ScanAxes/ScanAxisInfo") or root.findall("./ScanInformation/ScanAxes/ScanAxisInfo")):
             if chain.get("AxisName") == "TwoTheta":
                 tth = chain.find("Start").text
                 ref = chain.find("Reference").text
-                #tth = str(float(ref)+float(tth)-float(off_tth))
-                tth = str(float(ref)+float(tth))
+                tth = str(float(ref)+float(tth)-float(off_tth))  #Added offset correction / June 2017.
+                #tth = str(float(ref)+float(tth))
 
             if chain.get("AxisName") == "Theta":
                 om = chain.find("Start").text
                 ref = chain.find("Reference").text
-                #om = str(float(ref)+float(om)-float(off_om))
-                om = str(float(ref)+float(om))
+                om = str(float(ref)+float(om)-float(off_om))  #Added offset correction / June 2017.
+                #om = str(float(ref)+float(om))
 
             if chain.get("AxisName") == "Chi":
                 chi = chain.find("Start").text
                 ref = chain.find("Reference").text
-                #chi = str(float(ref)+float(chi)-float(off_chi))
-                chi = str(float(ref)+float(chi))
+                chi = str(float(ref)+float(chi)-float(off_chi))  #Added offset correction / June 2017.
+                #chi = str(float(ref)+float(chi))
 
             if chain.get("AxisName") == "Phi":
                 phi = chain.find("Start").text
                 ref = chain.find("Reference").text
-                #phi = str(float(ref)+float(phi)-float(off_phi))
-                phi = str(float(ref)+float(phi))
+                phi = str(float(ref)+float(phi)-float(off_phi))  #Added offset correction / June 2017.
+                #phi = str(float(ref)+float(phi))
 
             if chain.get("AxisName") == "X":
                 tx = chain.find("Start").text
                 ref = chain.find("Reference").text
-                #tx = str(float(ref)+float(tx)-float(off_tx))
-                tx = str(float(ref)+float(tx))
+                tx = str(float(ref)+float(tx)-float(off_tx))  #Added offset correction / June 2017.
+                #tx = str(float(ref)+float(tx))
 
             if chain.get("AxisName") == "Y":
                 ty = chain.find("Start").text
                 ref = chain.find("Reference").text
-                #ty = str(float(ref)+float(ty)-float(off_ty))
-                ty = str(float(ref)+float(ty))
+                ty = str(float(ref)+float(ty)-float(off_ty))  #Added offset correction / June 2017.
+                #ty = str(float(ref)+float(ty))
 
-        for chain in root.findall("./DataRoutes/DataRoute/DataViews/RawDataView/Recording"):
+        for chain in (root.findall("./DataRoutes/DataRoute/DataViews/RawDataView/Recording") or root.findall("./DataViews/RawDataView/Recording")):
             if "Temperature" in chain.get("LogicName"):
                 check_temperature = 1
 
         for chain in root.findall("./FixedInformation/Drives/InfoData"):
             if chain.get("LogicName") == "TwoTheta":
                 tth = chain.find("Position").attrib["Value"]
-                #tth = str(float(tth)-float(off_tth))
+                tth = str(float(tth)-float(off_tth))  #Added offset correction / June 2017.
 
             if chain.get("LogicName") == "Theta":
                 om = chain.find("Position").attrib["Value"]
-                #om = str(float(om)-float(off_om))
+                om = str(float(om)-float(off_om))  #Added offset correction / June 2017.
 
             if chain.get("LogicName") == "Chi":
                 chi = chain.find("Position").attrib["Value"]
-                #chi = str(float(chi)-float(off_chi))
+                chi = str(float(chi)-float(off_chi))  #Added offset correction / June 2017.
 
             if chain.get("LogicName") == "Phi":
                 phi = chain.find("Position").attrib["Value"]
-                #phi = str(float(phi)-float(off_phi))
+                phi = str(float(phi)-float(off_phi))  #Added offset correction / June 2017.
 
             if chain.get("LogicName") == "X":
                 tx = chain.find("Position").attrib["Value"]
-                #tx = str(float(tx)-float(off_tx))
+                tx = str(float(tx)-float(off_tx))  #Added offset correction / June 2017.
 
             if chain.get("LogicName") == "Y":
                 ty = chain.find("Position").attrib["Value"]
-                #ty = str(float(ty)-float(off_ty))
-
+                ty = str(float(ty)-float(off_ty))  #Added offset correction / June 2017.
 
         offset = str(float(om) - float(tth)/2.)
 
         if "PSDFIXED" in scan_type:
             if check_temperature == 0:
-                for chain in root.findall("./DataRoutes/DataRoute"):
+                for chain in (root.findall("./DataRoutes/DataRoute") or root.findall("./")):
                     intensity = (chain.find("Datum").text).split(',')
 
-                for chain in root.findall("./DataRoutes/DataRoute/DataViews/RawDataView/Recording"):
+                for chain in (root.findall("./DataRoutes/DataRoute/DataViews/RawDataView/Recording") or root.findall("./DataViews/RawDataView/Recording")):
                     if chain.get("LogicName") == "Counter1D":
                         n_channels = int(chain.find("Size/X").text)
 
@@ -299,7 +297,7 @@ def brml_reader(file_name):
         else:
             if check_temperature == 0:
                 line_count = 0
-                for chain in root.findall("./DataRoutes/DataRoute/Datum"):
+                for chain in (root.findall("./DataRoutes/DataRoute/Datum") or root.findall("./Datum")):
                     if line_count == 0:
                         scanning = float(start)
                     else:
@@ -312,7 +310,7 @@ def brml_reader(file_name):
                                   + " "  + intensity +'\n')
             else:
                 line_count = 0
-                for chain in root.findall("./DataRoutes/DataRoute/Datum"):
+                for chain in (root.findall("./DataRoutes/DataRoute/Datum") or root.findall("./Datum")):
                     if line_count == 0:
                         scanning = float(start)
                     else:
