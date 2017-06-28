@@ -72,8 +72,8 @@ def generate_RSM(cleaned, file_name, scantype, line_count, wl, state_log, state_
 
         if "THETA" in scantype and ((phi[1:]-phi[:-1]).sum() != 0):
             inplane = 1
-            Qx = (4*pi*sin(tth*pi/360)*sin((om-scanning/2)*pi/180) / wl)*cos(phi*pi/180)
-            Qz = (4*pi*sin(tth*pi/360)*sin((om-scanning/2)*pi/180) / wl)*sin(phi*pi/180) #Actually correspond to Qy
+            Qx = (4*pi*sin(tth*pi/360)*sin((scanning-tth/2)*pi/180) / wl)*cos(phi*pi/180)
+            Qz = (4*pi*sin(tth*pi/360)*sin((scanning-tth/2)*pi/180) / wl)*sin(phi*pi/180) #Actually correspond to Qy
 
         # interpolate intensity to a square mesh in reciprocal space
         grid_x, grid_z = mgrid[Qx.min():Qx.max()+step:step,Qz.min():Qz.max()+step:step]
