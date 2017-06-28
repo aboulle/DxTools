@@ -23,6 +23,11 @@ def crop_data(input_data, nlines, start, stop, start2, stop2):
     return data_matrix.flatten()
 
 def generate_RSM(cleaned, file_name, scantype, line_count, wl, state_log, state_angmat, state_qmat, state_xyz, step, start, stop, start2, stop2):
+    line_count = int(line_count)
+    start = int(start)
+    stop = int(stop)
+    start2 = int(start2)
+    stop2 = int(stop2)
     phi = cleaned[:,2]
     om = cleaned[:,5]
     offset = cleaned[:,6]
@@ -126,6 +131,11 @@ def generate_RSM(cleaned, file_name, scantype, line_count, wl, state_log, state_
     return status
 
 def generate_Temp(cleaned, file_name, line_count, state_indv, state_matrix, state_fit, start, stop, startT, stopT):
+    line_count = int(line_count)
+    start = int(start)
+    stop = int(stop)
+    startT = int(startT)
+    stopT = int(stopT)
     temperature = cleaned[:,0]
     angle = cleaned[:,8]
     intensity = cleaned[:,9]
@@ -221,6 +231,11 @@ def generate_Temp(cleaned, file_name, line_count, state_indv, state_matrix, stat
     return status
     
 def generate_Xscan(cleaned, file_name, line_count, state_indv, state_matrix, state_fit, start, stop, startX, stopX ):
+    line_count = int(line_count)
+    start = int(start)
+    stop = int(stop)
+    startX = int(startX)
+    stopX = int(stopX)
     tx = cleaned[:,3]
     ty = cleaned[:,4]
     angle = cleaned[:,8]
@@ -324,6 +339,11 @@ def generate_Xscan(cleaned, file_name, line_count, state_indv, state_matrix, sta
     return status
 
 def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, start, stop, startpsi, stoppsi ):
+    line_count = int(line_count)
+    start = int(start)
+    stop = int(stop)
+    startpsi = int(startpsi)
+    stoppsi = int(stoppsi)
     chi = cleaned[:,1]
     phi = cleaned[:,2]
     offset = cleaned[:,6]
@@ -471,6 +491,11 @@ def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, s
     return status
 
 def generate_Pole(cleaned, file_name, scantype, line_count, state_indv, state_angmat, state_xyz, start, stop, start2, stop2):
+    line_count = int(line_count)
+    start = int(start)
+    stop = int(stop)
+    start2 = int(start2)
+    stop2 = int(stop2)
     khi = cleaned[:,1]
     phi = cleaned[:,2]
     scanning = cleaned[:,8]
@@ -536,6 +561,9 @@ def generate_Pole(cleaned, file_name, scantype, line_count, state_indv, state_an
 
 def generate_Custom(cleaned, file_name, line_count, state_th, state_tth, state_chi, state_phi, state_x, state_y, state_temp,
                      start, stop):
+    line_count = int(line_count)
+    start = int(start)
+    stop = int(stop)
     temperature = cleaned[:,0] - 273
     chi = cleaned[:,1]
     phi = cleaned[:,2]
