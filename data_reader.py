@@ -98,12 +98,18 @@ def brml_reader(file_name):
     For every intensity value, saves all relevant motor coordinates and sensor values.
     All values are save in temporary SPEC-style tmp file.
     """
+#*****************************************************************************************************
+# Unzip xml files
+#*****************************************************************************************************
     extract_path = os.path.join(os.getcwd(),"unzip")
     if sys.platform == "win32":
+        print("Detected platform: Windows")
         os.system("RMDIR "+ extract_path +" /s /q")
     elif sys.platform == "darwin":
+        print("Detected platform: MacOS")
         os.system("rm -rf "+ extract_path)
     elif sys.platform == "linux" or sys.platform == "linux2":
+        print("Detected platform: Linux")
         os.system("rm -rf "+ extract_path)
 
     #Extract all RawData*.xml files and InstructionContainer the brml to temporary unzip file
@@ -112,13 +118,21 @@ def brml_reader(file_name):
             if ("RawData" in info.filename) or ("InstructionContainer" in info.filename):
             #if ("RawData" in info.filename):
                 brml.extract(info.filename, extract_path)
-
+#*****************************************************************************************************
+# For time counting, the number of days is initialized to 0.
+# Compatibility fixes with D8 advance and older Discover: offsets, chi and tx, ty are initialized to 0
+#*****************************************************************************************************
+    # Initialize the number of days to 0
+    n_day = 0.
     # Initialize all offsets to 0
     off_tth = off_om = off_phi = off_chi = off_tx = off_ty = 0
-    
-    #Modification June 2017
-    #In some RawData.xml files, wavelength and static motors are missing.
-    #Find wl and static motors in MeasurementContainer.xml
+    # Set Chi, tx and ty to 0 for D8 advance (July 2017 Julia Stroh)
+    chi = tx = ty = "0"
+#*****************************************************************************************************
+#Modification June 2017 (Duc Dinh)
+#In some RawData.xml files, wavelength and static motors are missing.
+#Find wl and static motors in MeasurementContainer.xml
+#*****************************************************************************************************
     data_path = os.path.join(extract_path, "*0","InstructionContainer.xml")
     for file in sorted(glob.glob(data_path)):
         tree = ET.parse(file)
@@ -160,13 +174,15 @@ def brml_reader(file_name):
 
     #Create ouput file
     outfile = open("tmp", "w", encoding='utf8') # Create output data file
-    outfile.write("#temperature   khi   phi   x   y   theta   offset   2theta   scanning motor   intensity\n")
-
-    # Finds scan type, wl, motors, temperature and intensity values in RawData.xml
+    outfile.write("#temperature   khi   phi   x   y   theta   offset   2theta   scanning motor   intensity   time\n")
+#*****************************************************************************************************
+# Finds scan type, wl, scanning motors and fixed motors values in RawData*.xml
+#*****************************************************************************************************
     data_path = os.path.join(extract_path, "*0","*.xml") #reading files in Experiment0 folder
     for file in sorted(glob.glob(data_path), key=file_nb):
         new_file = 0
         check_temperature = 0
+        check_1Dmode = 0
         #parsing XML file
         tree = ET.parse(file) 
         root = tree.getroot()
@@ -179,6 +195,11 @@ def brml_reader(file_name):
                 scan_type = "COUPLED"
             if ("Rocking" in scan_type) or ("rocking" in scan_type):
                 scan_type = "THETA"
+
+        # Check if temperature is recorded
+        for chain in (root.findall("./DataRoutes/DataRoute/DataViews/RawDataView/Recording") or root.findall("./DataViews/RawDataView/Recording")):
+            if "Temperature" in chain.get("LogicName"):
+                check_temperature = 1
 
         #Find wl in RawData.xml
         for chain in root.findall("./FixedInformation/Instrument/PrimaryTracks/TrackInfoData/MountedOptics/InfoData/Tube/WaveLengthAlpha1"):
@@ -195,11 +216,13 @@ def brml_reader(file_name):
                     off_scan = 0
                 step = chain.find("Increment").text
                 start = chain.find("Start").text
+                stop = chain.find("Stop").text
                 ref = chain.find("Reference").text
                 start = str(float(ref)+float(start)-off_scan)  #Added offset correction / June 2017.
                 #start = str(float(ref)+float(start))
                 new_file += 1
 
+        # Find scanning motors
         for chain in (root.findall("./DataRoutes/DataRoute/ScanInformation/ScanAxes/ScanAxisInfo") or root.findall("./ScanInformation/ScanAxes/ScanAxisInfo")):
             if chain.get("AxisName") == "TwoTheta":
                 tth = chain.find("Start").text
@@ -237,10 +260,7 @@ def brml_reader(file_name):
                 ty = str(float(ref)+float(ty)-float(off_ty))  #Added offset correction / June 2017.
                 #ty = str(float(ref)+float(ty))
 
-        for chain in (root.findall("./DataRoutes/DataRoute/DataViews/RawDataView/Recording") or root.findall("./DataViews/RawDataView/Recording")):
-            if "Temperature" in chain.get("LogicName"):
-                check_temperature = 1
-
+        # Find static motors
         for chain in root.findall("./FixedInformation/Drives/InfoData"):
             if chain.get("LogicName") == "TwoTheta":
                 tth = chain.find("Position").attrib["Value"]
@@ -268,6 +288,47 @@ def brml_reader(file_name):
 
         offset = str(float(om) - float(tth)/2.)
 
+#*****************************************************************************************************
+# This section computes scanning time, scanning angular range and scanning speed
+# in order to convert 2th values to time values (July 2017, Julia Stroh)
+#*****************************************************************************************************
+        for chain in (root.findall("./TimeStampStarted")):
+            d_start = ((chain.text).split("T")[0]).split("-")[2]
+            t_start = ((chain.text).split("T")[1]).split("+")[0]
+            h_start, min_start, sec_start = t_start.split(":")
+            t_start = float(h_start)*3600 + float(min_start)*60 + float(sec_start)
+
+            if file_nb(file)==0:
+                abs_start = t_start
+        for chain in (root.findall("./TimeStampFinished")):
+            d_stop = ((chain.text).split("T")[0]).split("-")[2]
+            t_stop = ((chain.text).split("T")[1]).split("+")[0]
+            h_stop, min_stop, sec_stop = t_stop.split(":")
+            t_stop = float(h_stop)*3600 + float(min_stop)*60 + float(sec_stop)
+
+        # Check if detector is in 1D mode
+        for chain in (root.findall("./DataRoutes/DataRoute/ScanInformation") or root.findall("./ScanInformation")):
+            if chain.find("TimePerStep").text != chain.find("TimePerStepEffective").text:
+                check_1Dmode = 1
+
+        # Check if day changed between start and stop and correct accordingly
+        if d_stop != d_start:
+            t_stop += 24*3600.
+        total_scan_time = t_stop - t_start
+
+        #scanning range
+        dth_scan = float(stop)-float(start)
+        #psd range
+        dth_psd = 0
+        for chain in root.findall("./FixedInformation/Detectors/InfoData/AngularOpening"):
+            dth_psd = chain.get("Value")
+        total_dth = float(dth_psd)*check_1Dmode+float(dth_scan)
+
+        scan_speed = total_dth / total_scan_time
+#*****************************************************************************************************
+# Finds intensity values. If temperature is recorded, also fin temperature values.
+# The intensity data is formatted differently in PSDfixed mode and when temperature is recorded
+#*****************************************************************************************************
         if "PSDFIXED" in scan_type:
             if check_temperature == 0:
                 for chain in (root.findall("./DataRoutes/DataRoute") or root.findall("./")):
@@ -285,13 +346,14 @@ def brml_reader(file_name):
                     else:
                         scanning += float(step)
                     line_count += 1
+                    t_2th = (t_start+n_day*24*3600 - abs_start)+((float(dth_psd)*check_1Dmode + scanning - float(start)) / scan_speed)
                     outfile.write("25" + " " + (chi) + " " + (phi)
                                   + " " + (tx) + " " + (ty) + " " + (om)
                                   + " " + (offset) + " " + (tth) + " " + str(scanning)
-                                  + " "  + intensity[i+int_shift] +'\n')
+                                  + " "  + intensity[i+int_shift] +" " + str(t_2th) +'\n')
             else:
                 return implementation_warning, 0, 0
-        
+
         #if "COUPLED" in scan_type:
         # to do check in brml that all scans (except psd fixed) share the same data structure (wrt temperature)
         else:
@@ -304,10 +366,12 @@ def brml_reader(file_name):
                         scanning += float(step)
                     line_count += 1
                     intensity = (chain.text).split(',')[-1]
+                    #compute time corresponding to scanning angle (July 2017)
+                    t_2th = (t_start+n_day*24*3600 - abs_start)+((float(dth_psd)*check_1Dmode + scanning - float(start)) / scan_speed)
                     outfile.write("25" + " " + (chi) + " " + (phi)
                                   + " " + (tx) + " " + (ty) + " " + (om)
                                   + " " + (offset) + " " + (tth) + " " + str(round(scanning, 4))
-                                  + " "  + intensity +'\n')
+                                  + " " + intensity + " " + str(t_2th) +'\n')
             else:
                 line_count = 0
                 for chain in (root.findall("./DataRoutes/DataRoute/Datum") or root.findall("./Datum")):
@@ -316,14 +380,17 @@ def brml_reader(file_name):
                     else:
                         scanning += float(step)
                     line_count += 1
+                    t_2th = (t_start+n_day*24*3600 - abs_start)+((float(dth_psd)*check_1Dmode + scanning - float(start)) / scan_speed)
                     intensity = (chain.text).split(',')[-2]
                     temperature = (chain.text).split(',')[-1]
                     outfile.write(temperature + " " + (chi) + " " + (phi)
                                   + " " + (tx) + " " + (ty) + " " + (om)
                                   + " " + (offset) + " " + (tth) + " " + str(round(scanning, 4))
-                                  + " "  + intensity +'\n')
+                                  + " "  + intensity + " " + str(t_2th) +'\n')
 
-
+        if d_stop != d_start:
+            n_day+=1
+            
     outfile.close()
     if sys.platform == "win32":
         os.system("RMDIR "+ extract_path +" /s /q")
