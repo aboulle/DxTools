@@ -338,6 +338,115 @@ def generate_Xscan(cleaned, file_name, line_count, state_indv, state_matrix, sta
         plt.show()
     return status
 
+def generate_Timescan(cleaned, file_name, line_count, state_indv, state_matrix, state_fit, start, stop, startX, stopX ):
+    line_count = int(line_count)
+    start = int(start)
+    stop = int(stop)
+    startX = int(startX)
+    stopX = int(stopX)
+    tx = cleaned[:,3]
+    ty = cleaned[:,4]
+    angle = cleaned[:,8]
+    intensity = cleaned[:,9]
+    time = cleaned[:,10]
+    bkg = intensity[intensity>0].min()
+    # Check data validity
+    if ((time[1:]-time[:-1]).sum()==0):
+        status = 0
+    else:
+        status = 1
+        try:
+            time_corr = loadtxt("time_correction.txt")
+        except:
+            time_corr = 0
+        tscan = time + time_corr #manual correction of time
+
+        # Crop data to desired dimensions
+        if ((start!=0) or (stop!=0) or (startX!=0) or (stopX!=0)):
+                intensity = crop_data(intensity,line_count, start, stop, startX, stopX)
+                angle = crop_data(angle,line_count, start, stop, startX, stopX)
+                tscan = crop_data(tscan,line_count, start, stop, startX, stopX)
+                line_count = line_count - start - stop
+
+        int_matrix = intensity.reshape(int(len(intensity)/line_count), int(line_count))
+        angle = angle[:int(line_count):]
+        tscan = tscan[int(line_count/2)::int(line_count)]
+
+        if state_matrix == 1:
+            out_I = column_stack((tscan, int_matrix))
+            out_I = row_stack((append([0],angle), out_I))
+            savetxt(file_name + '_matrix.txt', out_I.T, fmt = '%10.8f')
+
+        #if state_indv == 1:
+            #for i in range(len(tscan)):
+                #out_scan = column_stack((angle, int_matrix[i,:]))
+                #savetxt(file_name + "_Scan"+str(i+1)+" Tr="+str(int(tscan[i]))+".txt", out_scan, fmt = '%10.8f')
+
+        if state_fit == 0:
+            out_Ii = int_matrix.sum(axis=1)
+            savetxt(file_name + "_int_I.txt", column_stack((tscan, out_Ii)), fmt = '%10.8f')
+            #writes individual files
+            if state_indv == 1:
+                for i in range(len(tscan)):
+                    out_scan = column_stack((angle, int_matrix[i,:]))
+                    savetxt(file_name + "_Scan"+str(i+1)+" Tr="+str(round(tscan[i],2))+".txt", out_scan, fmt = '%10.8f')
+            
+            plt.ion()
+            fig=plt.figure()
+            ax0 = fig.add_subplot(211)
+            ax0.set_xlabel(r"$Time\ (sec.)$", fontsize = 14)
+            ax0.set_ylabel(r"$Scanning\ angle\ (deg.)$", fontsize = 14)
+            plt.imshow(log10(int_matrix+bkg).T, extent=(tscan.min(), tscan.max(), angle.min(),angle.max()), origin='lower', aspect="auto", cmap='jet')
+            ax = fig.add_subplot(212, sharex=ax0)
+            ax.set_xlabel(r"$Time\ (sec.)$", fontsize = 14)
+            ax.set_ylabel(r"$Integrated\ intensity\ (counts)$", fontsize = 14)
+            plt.xlim(tscan.min(), tscan.max())
+            plt.plot(tscan, out_Ii)
+            plt.tight_layout()
+        else:
+            outfile = open(file_name+ "_fitparams.txt", "w")
+            outfile.write("#translation   area esd   position esd   FWHM esd\n")
+            for i in range(len(tscan)):
+                p, err = pVfit_param_err(angle,int_matrix[i,:])
+                outfile.write(str(tscan[i])+" "+str(pVoigt_area(p))+" "+str(pVoigt_area_err(p,err))+" "+str(p[1])+" "+str(err[1])+" "+str(p[2])+" "+ str(err[2]) + "\n")
+                #plt.plot(angle, int_matrix[i,:], 'ok', angle, pVoigt(angle, p), '-r')
+                #plt.show() #uncomment to check fits
+                #writes individual files (exp + fit)
+                if state_indv == 1:
+                    out_scan = column_stack((angle, int_matrix[i,:]))
+                    out_scan = column_stack((out_scan, pVoigt(angle, p)))
+                    savetxt(file_name + "_Scan"+str(i+1)+" Tr="+str(round(tscan[i],2))+".txt", out_scan, fmt = '%10.8f')
+            outfile.close()
+
+            fit_p = loadtxt(file_name.split(".")[0]+ "_fitparams.txt")
+            plt.ion()
+            fig=plt.figure()
+            ax0 = fig.add_subplot(221)
+            ax0.set_xlabel(r"$Time\ (sec)$", fontsize = 14)
+            ax0.set_ylabel(r"$Scanning\ angle\ (deg.)$", fontsize = 14)
+            plt.imshow(log10(int_matrix+bkg).T, extent=(tscan.min(), tscan.max(), angle.min(),angle.max()), origin='lower', aspect="auto", cmap='jet')
+            
+            ax = fig.add_subplot(223)
+            ax.set_xlabel(r"$Time\ (sec.)$", fontsize = 14)
+            ax.set_ylabel(r"$Integrated\ intensity\ (Counts)$", fontsize = 14)
+            plt.xlim(tscan.min(), tscan.max())
+            plt.plot(tscan, fit_p[:,1])
+            
+            ax = fig.add_subplot(222)
+            ax.set_xlabel(r"$Time\ (sec.)$", fontsize = 14)
+            ax.set_ylabel(r"$Peak\ position\ (deg.)$", fontsize = 14)
+            plt.xlim(tscan.min(), tscan.max())
+            plt.plot(tscan, fit_p[:,3])
+            
+            ax = fig.add_subplot(224)
+            ax.set_xlabel(r"$Time\ (sec.)$", fontsize = 14)
+            ax.set_ylabel(r"$FWHM\ (deg.)$", fontsize = 14)
+            plt.xlim(tscan.min(), tscan.max())
+            plt.plot(tscan, fit_p[:,5])
+            plt.tight_layout()
+        plt.show()
+    return status
+
 def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, start, stop, startpsi, stoppsi ):
     line_count = int(line_count)
     start = int(start)
