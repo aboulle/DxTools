@@ -11,6 +11,7 @@ import tkinter.ttk as ttk
 import matplotlib.pyplot as plt
 import os
 import sys
+import shutil
 
 from data_reader import *
 from data_processor import *
@@ -736,6 +737,10 @@ class MyApp(Frame):
             pass
 
     def on_closing(self):
+        try:
+            shutil.rmtree("./unzip")
+        except:
+            pass
         try:
             os.remove("tmp")
         except:
