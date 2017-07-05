@@ -1,4 +1,6 @@
-**Download manual [here](https://doi.org/10.1107/S1600576717005192).**
+**If you use this program in academic work, please cite:**
+A. Boulle, "DxTools: Processing large data files recorded with the Bruker D8 diffractometer",
+_J. Appl.Cryst._ **49**, 311-316 (2016). [Link to article.] (https://doi.org/10.1107/S1600576717005192)
 
 ## Installation instructions
 DxTools requires [Python 3](http://www.python.org), [SciPy](http://www.scipy.org) and [Matplotlib](http://www.matplotlib.org).
