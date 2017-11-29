@@ -88,15 +88,15 @@ class MyApp(Frame):
         f1 = ttk.Frame()
         f2 = ttk.Frame()
         f3 = ttk.Frame()
-        #f4 = ttk.Frame()
+        f4 = ttk.Frame()
         f5 = ttk.Frame()
         f6 = ttk.Frame()
         f7 = ttk.Frame()
         # create the pages
         nb.add(f1, text='RS Map')
         nb.add(f2, text='Temperature')
-        nb.add(f3, text='X/Y scan')
-        #nb.add(f4, text='XY scan') #Not relevant for a linear beam. Not yet implemented.
+        nb.add(f3, text='Translation')
+        nb.add(f4, text='Time')
         nb.add(f5, text=u'Sin²\u03C8')
         nb.add(f6, text='Pole figure')
         nb.add(f7, text='Custom')
@@ -251,7 +251,7 @@ class MyApp(Frame):
 
 
         #****************************************
-        # Tab: X/Y scan
+        # Tab: Translation
         #****************************************
         f3.columnconfigure(0, weight=1, minsize=82)
         f3.columnconfigure(1, weight=1, minsize=82)
@@ -317,6 +317,74 @@ class MyApp(Frame):
         self.process3.grid(row=9, column=0, columnspan=4, sticky="ew", pady=(0,0), padx=(20,20))
         self.process3.focus()
         self.process3.bind('<Return>', self.processX)
+        
+        #****************************************
+        # Tab: Time
+        #****************************************
+        f4.columnconfigure(0, weight=1, minsize=82)
+        f4.columnconfigure(1, weight=1, minsize=82)
+        f4.columnconfigure(2, weight=1, minsize=82)
+        f4.columnconfigure(3, weight=1, minsize=82)
+        f4.rowconfigure(0, weight=1, minsize=rowsize)
+        f4.rowconfigure(1, weight=1, minsize=rowsize)
+        f4.rowconfigure(2, weight=1, minsize=rowsize)
+        f4.rowconfigure(3, weight=1, minsize=rowsize)
+        f4.rowconfigure(4, weight=1, minsize=rowsize)
+        f4.rowconfigure(5, weight=1, minsize=rowsize)
+        f4.rowconfigure(6, weight=1, minsize=rowsize)
+        f4.rowconfigure(7, weight=1, minsize=rowsize)
+        f4.rowconfigure(8, weight=1, minsize=rowsize)
+        f4.rowconfigure(9, weight=1, minsize=rowsize)
+        label_options4 = ttk.Label(f4, text="Export options:")
+        label_options4.grid(row=0, column=0, sticky = "w", pady = (0,0), padx = (5,0))
+
+        self.state_indv4= IntVar()
+        self.state_indv4.set(1)
+        button_indv4 = ttk.Checkbutton(f4, text="Individual scans.", variable=self.state_indv4)
+        button_indv4.grid(row=1, column=0, columnspan=3, sticky="w", pady = (0,0), padx = (15,0))
+
+        self.state_mat4 = IntVar()
+        self.state_mat4.set(0)
+        button_mat4 = ttk.Checkbutton(f4, text="Time/angle intensity matrix.   ", variable=self.state_mat4)
+        button_mat4.grid(row=2, column=0, columnspan=3, sticky="w", pady = (0,0), padx = (15,0))
+
+        label_analysis4 = ttk.Label(f4, text="Data analysis:")
+        label_analysis4.grid(row=3, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (5,0))
+
+        self.state_fit4 = IntVar()
+        self.state_fit4.set(0)
+        radio_fit4 = ttk.Radiobutton(f4, text="Numerical intensity integration.", variable= self.state_fit4, value=0)
+        radio_fit4.grid(row=4, column=0, columnspan=3, sticky="w", pady = (0,0), padx = (15,0))
+
+        radio_fit4 = ttk.Radiobutton(f4, text="Peak fitting (one peak only).", variable= self.state_fit4, value=1)
+        radio_fit4.grid(row=5, column=0, columnspan=3, sticky="w", pady = (0,0), padx = (15,0))
+
+        label_skip4 = ttk.Label(f4, text="Skip points at start/stop:")
+        label_skip4.grid(row=6, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (5,0))
+        
+        label_skipstart4 = ttk.Label(f4, text="Primary scanning axis:")
+        label_skipstart4.grid(row=7, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (15,0))
+        self.entry_skipstart4=ttk.Entry(f4, width=7)
+        self.entry_skipstart4.grid(row = 7, column=2, sticky = "", pady = (0,0), padx=(0,0))
+        self.entry_skipstart4.insert(0,0)
+        self.entry_skipstop4=ttk.Entry(f4, width = 7)
+        self.entry_skipstop4.grid(row = 7, column=3, sticky = "w", pady = (0,0), padx=(0,0))
+        self.entry_skipstop4.insert(0,0)
+
+        label_skipstartX4 = ttk.Label(f4, text="Time range:")
+        label_skipstartX4.grid(row=8, column=0, columnspan = 3, sticky = "w", pady = (0,0), padx = (15,0))
+        self.entry_skipstartX4=ttk.Entry(f4, width=7)
+        self.entry_skipstartX4.grid(row = 8, column=2, sticky = "", pady = (0,0), padx=(0,0))
+        self.entry_skipstartX4.insert(0,0)
+        self.entry_skipstopX4=ttk.Entry(f4, width = 7)
+        self.entry_skipstopX4.grid(row = 8, column=3, sticky = "w", pady = (0,0), padx=(0,0))
+        self.entry_skipstopX4.insert(0,0)
+
+
+        self.process4=ttk.Button(f4, text="Process Data", command=self.processTime)
+        self.process4.grid(row=9, column=0, columnspan=4, sticky="ew", pady=(0,0), padx=(20,20))
+        self.process4.focus()
+        self.process4.bind('<Return>', self.processTime)
         
         #****************************************
         # Tab: Sin²Psi
@@ -663,7 +731,7 @@ class MyApp(Frame):
     
     def processX(self, event = None):
         if self.flag_data == 1:
-            self.status.set("Processing X-scan data, please wait.")
+            self.status.set("Processing translation scan data, please wait.")
             self.status.pack(side=BOTTOM, fill=X)
             #self.processing_warning()
             self.parent.config(cursor="watch")
@@ -671,6 +739,24 @@ class MyApp(Frame):
             status = generate_Xscan(self.raw_data, self.export_path, float(self.line), int(self.state_indv3.get()),
                      int(self.state_mat3.get()), int(self.state_fit3.get()), float(self.entry_skipstart3.get()),
                      float(self.entry_skipstop3.get()), float(self.entry_skipstartX3.get()), float(self.entry_skipstopX3.get()))
+            self.status.set("Done.")
+            self.parent.config(cursor="")
+            if status == 0:
+                self.datatype_warning()
+        else:
+            self.data_warning()
+            pass
+
+    def processTime(self, event = None):
+        if self.flag_data == 1:
+            self.status.set("Processing time scan data, please wait.")
+            self.status.pack(side=BOTTOM, fill=X)
+            #self.processing_warning()
+            self.parent.config(cursor="watch")
+            self.parent.update()
+            status = generate_Timescan(self.raw_data, self.export_path, float(self.line), int(self.state_indv4.get()),
+                     int(self.state_mat4.get()), int(self.state_fit4.get()), float(self.entry_skipstart4.get()),
+                     float(self.entry_skipstop4.get()), float(self.entry_skipstartX4.get()), float(self.entry_skipstopX4.get()))
             self.status.set("Done.")
             self.parent.config(cursor="")
             if status == 0:
