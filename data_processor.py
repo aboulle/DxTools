@@ -4,7 +4,7 @@ DxTools: Processing XRD data files recorded with the Bruker D8 diffractometer
 Copyright 2016, Alexandre  Boulle
 alexandre.boulle@unilim.fr
 """
-from scipy import loadtxt, savetxt, pi, log10, sin, cos, mgrid, column_stack, row_stack, append, shape, loadtxt, zeros, meshgrid
+from scipy import loadtxt, savetxt, pi, log10, sin, cos, mgrid, column_stack, row_stack, append, shape, loadtxt, zeros, meshgrid, nan
 from scipy.interpolate import griddata
 from scipy.optimize import leastsq
 import matplotlib.pyplot as plt
@@ -22,7 +22,7 @@ def crop_data(input_data, nlines, start, stop, start2, stop2):
     data_matrix = data_matrix[start2:nscans-stop2:, start:nlines-stop:]
     return data_matrix.flatten()
 
-def generate_RSM(cleaned, file_name, scantype, line_count, wl, state_log, state_angmat, state_qmat, state_xyz, step, start, stop, start2, stop2):
+def generate_RSM(cleaned, file_name, scantype, line_count, wl, state_log, state_angmat, state_qmat, state_xyz, step, start, stop, start2, stop2, thresh):
     line_count = int(line_count)
     start = int(start)
     stop = int(stop)
@@ -77,7 +77,8 @@ def generate_RSM(cleaned, file_name, scantype, line_count, wl, state_log, state_
 
         # interpolate intensity to a square mesh in reciprocal space
         grid_x, grid_z = mgrid[Qx.min():Qx.max()+step:step,Qz.min():Qz.max()+step:step]
-        grid_I = griddata(column_stack((Qx, Qz)), intensity+bkg, (grid_x, grid_z), method='linear')
+        grid_I = griddata(column_stack((Qx, Qz)), intensity, (grid_x, grid_z), fill_value = 0, method='linear')
+        #grid_I[grid_I<=thresh] = nan
 
 
         #Export data files
@@ -124,7 +125,7 @@ def generate_RSM(cleaned, file_name, scantype, line_count, wl, state_log, state_
             ax.set_ylabel(r"$Q_z (2 \pi / \AA)$", fontsize=16)
         if inplane == 1:
             ax.set_ylabel(r"$Q_y (2 \pi / \AA)$", fontsize=16)
-        plt.imshow(grid_I.T, extent=(Qx.min(),Qx.max()+step,Qz.min(),Qz.max()+step), origin='lower', cmap='jet')
+        plt.imshow(grid_I.T, extent=(Qx.min(),Qx.max()+step,Qz.min(),Qz.max()+step), origin='lower', cmap='jet', vmin=thresh)
         plt.tight_layout()
         plt.show()
 
