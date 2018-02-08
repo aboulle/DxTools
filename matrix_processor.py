@@ -1,7 +1,6 @@
 # coding: utf-8
 # TODO:
 # FIX AREA COMPARISON
-# Remove all unnecessary relim and plot_idle
 
 #import matplotlib
 #matplotlib.use('Qt5Agg')
@@ -107,9 +106,6 @@ def process_matrix(file_name):
 # ███████   ████   ███████ ██   ████    ██        ██       ██████  ██   ████  ██████    ██    ██  ██████  ██   ████ ███████
 
 	def fit2D(event, list_x, list_z, fit_matrix, guess_list, peak_list, p_fit, contour_list):
-		print(guess_list)
-		print(p_fit)
-		print(contour_list)
 		kill_flag = []
 		# Check if an area has been selected
 		if len(list_x.getvalue()) == 0:
@@ -117,8 +113,6 @@ def process_matrix(file_name):
 			select_area(event, list_x, list_z)
 		# else:
 		#Check if some areas are included in others and remove the smallest
-		print(list_x.getvalue())
-		print(list_z.getvalue())
 		for i in range(int(len(list_x.getvalue())/2)):
 			for j in range(int(len(list_x.getvalue())/2)):
 				if (list_x.getvalue()[2*i]>list_x.getvalue()[2*j])\
@@ -168,17 +162,6 @@ def process_matrix(file_name):
 					# check if peak in area
 					if (xc>zoomQx.min()) and (xc<zoomQx.max()) and (yc>zoomQz.min()) and (yc<zoomQz.max()):
 						print("Peak", ii, "is in area", i)
-						# if area i has never been fitted before, create guess
-						# if (guess_list[i]==None):
-						#     if ii == 0:
-						#         guess_list[i]=[exp_data.max(), xc, zc, w/3., h/3., 0*np.pi/180]
-						#         print("Initialize first peak")
-						#     else:
-						#         guess_list[i] = np.concatenate((guess_list[i], [exp_data.max(), xc, zc, w/3., h/3., 0*np.pi/180]))
-						#         print("Initialize other peaks")
-						# # if area has already been fitted before use previously fitted values
-						# else:
-							# reuse result of first fit
 						if first_peak == 1:
 							first_peak = 0
 							print("Initialize first peak")
@@ -239,17 +222,9 @@ def process_matrix(file_name):
 			l2fit.set_xdata(extract_vprofile(fit_matrix, x, th))
 			l3fit.set_ydata(extract_hprofile(fit_matrix, z,th))
 
-			# ax2.relim()
-			# ax2.autoscale_view()
-			# ax3.relim()
-			# ax3.autoscale_view()
-			#
-			# fig.canvas.draw_idle()
-
 	# Event managing functions
 	# Update scans when slider is modified
 	def update(event, x, z):
-		#global x, z
 		x = slider_Qx.val
 		z = slider_Qz.val
 		l0.set_xdata([x,x])
@@ -266,8 +241,6 @@ def process_matrix(file_name):
 
 	# Erase all selections and calculations
 	def reset(event, list_x, list_z, x, z, fit_matrix, peak_list, guess_list, p_fit, contour_list):
-		#global ax1, ax2, ax3, ax4, l0, l1, l2, l3
-		#global list_x, list_z, x, z, fit_matrix, peak_list, guess_list, p_fit, contour_list
 		list_x.__init__()
 		list_z.__init__()
 		peak_list.__init__()
@@ -301,7 +274,6 @@ def process_matrix(file_name):
 		l3fit.set_ydata(extract_hprofile(fit_matrix, z,th))
 		ax3.relim()
 		ax3.autoscale_view()
-		#
 		# fig.canvas.draw_idle()
 
 	# Save extracted profiles
@@ -322,9 +294,9 @@ def process_matrix(file_name):
 		if yhi > Qz.max(): yhi = Qz.max()
 		w=xhi-xlo
 		h=yhi-ylo
-		rectangle=patches.Rectangle((xlo,ylo),w,h, fill=False, linestyle='dotted', linewidth=2, edgecolor="orange")
-		ax1.add_patch(rectangle)
-		fig.canvas.draw_idle()
+		# rectangle=patches.Rectangle((xlo,ylo),w,h, fill=False, linestyle='dotted', linewidth=2, edgecolor="orange")
+		# ax1.add_patch(rectangle)
+		# fig.canvas.draw_idle()
 
 		list_x.add_to_list([xlo,xhi])
 		list_z.add_to_list([ylo,yhi])
@@ -351,14 +323,6 @@ def process_matrix(file_name):
 		if event.key == "down":
 			slider_Qz.set_val(slider_Qz.val-step)
 
-		# ax2.relim()
-		# ax2.autoscale_view()
-		# ax3.relim()
-		# ax3.autoscale_view()
-		# x = slider_Qx.val
-		# z = slider_Qz.val
-		# fig.canvas.draw_idle()
-
 	def onclick(event, peak_list, x, z):
 		#global peak_list, ax1, ax2, ax3, x, z, slider_Qx, slider_Qz
 		# Double click to select peak
@@ -373,13 +337,6 @@ def process_matrix(file_name):
 			slider_Qx.set_val(event.xdata)
 			slider_Qz.set_val(event.ydata)
 			update(event, x, z)
-			# ax2.relim()
-			# ax2.autoscale_view()
-			# ax3.relim()
-			# ax3.autoscale_view()
-		# x = slider_Qx.val
-		# z = slider_Qz.val
-		# fig.canvas.draw_idle()
 
 #  ██████ ██████  ███████  █████  ████████ ███████     ███████ ██  ██████  ██    ██ ██████  ███████
 # ██      ██   ██ ██      ██   ██    ██    ██          ██      ██ ██       ██    ██ ██   ██ ██
@@ -461,7 +418,5 @@ def process_matrix(file_name):
 	buttonSelect.on_clicked(lambda event: select_area(event, list_x, list_z))
 	fig.canvas.mpl_connect('key_press_event', lambda event: key_press(event, list_x, list_z, x, z))
 	fig.canvas.mpl_connect('button_press_event', lambda event: onclick(event, peak_list, x, z))
-
-	print(list_x.getvalue(), list_z.getvalue())
 
 	plt.show()
