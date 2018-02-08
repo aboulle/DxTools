@@ -10,6 +10,7 @@ from scipy.optimize import leastsq
 import matplotlib.pyplot as plt
 import sys
 from misc import *
+plt.style.use('bmh')
 
 def crop_data(input_data, nlines, start, stop, start2, stop2):
     start = int(start)
@@ -52,7 +53,7 @@ def generate_RSM(cleaned, file_name, scantype, line_count, wl, state_log, state_
             tth = crop_data(tth, line_count, start, stop, start2, stop2)
             scanning = crop_data(scanning, line_count, start, stop, start2, stop2)
             phi = crop_data(phi, line_count, start, stop, start2, stop2)
-            
+
             line_count = line_count - start - stop
 
         # Compute Q, Qz for different scanning geometries
@@ -92,7 +93,7 @@ def generate_RSM(cleaned, file_name, scantype, line_count, wl, state_log, state_
             int_matrix = column_stack((om, int_matrix))
             int_matrix = row_stack((append([0], scanning), int_matrix))
             savetxt(file_name + '_angular_matrix.txt', int_matrix.T, fmt = '%10.8f')
-            
+
         if state_angmat == 1 and inplane == 1:
             scanning = scanning[:line_count:]
             phi = phi[::line_count]
@@ -173,7 +174,7 @@ def generate_Temp(cleaned, file_name, line_count, state_indv, state_matrix, stat
                 for i in range(len(temperature)):
                     out_scan = column_stack((angle, int_matrix[i,:]))
                     savetxt(file_name + "_Scan"+str(i+1)+" T="+str(round(temperature[i],2))+".txt", out_scan, fmt = '%10.8f')
-            
+
             plt.ion()
             fig=plt.figure()
             ax0 = fig.add_subplot(211)
@@ -230,7 +231,7 @@ def generate_Temp(cleaned, file_name, line_count, state_indv, state_matrix, stat
             plt.tight_layout()
         plt.show()
     return status
-    
+
 def generate_Xscan(cleaned, file_name, line_count, state_indv, state_matrix, state_fit, start, stop, startX, stopX ):
     line_count = int(line_count)
     start = int(start)
@@ -282,7 +283,7 @@ def generate_Xscan(cleaned, file_name, line_count, state_indv, state_matrix, sta
                 for i in range(len(tscan)):
                     out_scan = column_stack((angle, int_matrix[i,:]))
                     savetxt(file_name + "_Scan"+str(i+1)+" Tr="+str(round(tscan[i],2))+".txt", out_scan, fmt = '%10.8f')
-            
+
             plt.ion()
             fig=plt.figure()
             ax0 = fig.add_subplot(211)
@@ -317,19 +318,19 @@ def generate_Xscan(cleaned, file_name, line_count, state_indv, state_matrix, sta
             ax0.set_xlabel(r"$Translation\ (mm)$", fontsize = 14)
             ax0.set_ylabel(r"$Scanning\ angle\ (deg.)$", fontsize = 14)
             plt.imshow(log10(int_matrix+bkg).T, extent=(tscan.min(), tscan.max(), angle.min(),angle.max()), origin='lower', aspect="auto", cmap='jet')
-            
+
             ax = fig.add_subplot(223)
             ax.set_xlabel(r"$Translation\ (mm)$", fontsize = 14)
             ax.set_ylabel(r"$Integrated\ intensity\ (Counts)$", fontsize = 14)
             plt.xlim(tscan.min(), tscan.max())
             plt.plot(tscan, fit_p[:,1])
-            
+
             ax = fig.add_subplot(222)
             ax.set_xlabel(r"$Translation\ (mm)$", fontsize = 14)
             ax.set_ylabel(r"$Peak\ position\ (deg.)$", fontsize = 14)
             plt.xlim(tscan.min(), tscan.max())
             plt.plot(tscan, fit_p[:,3])
-            
+
             ax = fig.add_subplot(224)
             ax.set_xlabel(r"$Translation\ (mm)$", fontsize = 14)
             ax.set_ylabel(r"$FWHM\ (deg.)$", fontsize = 14)
@@ -391,7 +392,7 @@ def generate_Timescan(cleaned, file_name, line_count, state_indv, state_matrix, 
                 for i in range(len(tscan)):
                     out_scan = column_stack((angle, int_matrix[i,:]))
                     savetxt(file_name + "_Scan"+str(i+1)+" Tr="+str(round(tscan[i],2))+".txt", out_scan, fmt = '%10.8f')
-            
+
             plt.ion()
             fig=plt.figure()
             ax0 = fig.add_subplot(211)
@@ -426,19 +427,19 @@ def generate_Timescan(cleaned, file_name, line_count, state_indv, state_matrix, 
             ax0.set_xlabel(r"$Time\ (sec)$", fontsize = 14)
             ax0.set_ylabel(r"$Scanning\ angle\ (deg.)$", fontsize = 14)
             plt.imshow(log10(int_matrix+bkg).T, extent=(tscan.min(), tscan.max(), angle.min(),angle.max()), origin='lower', aspect="auto", cmap='jet')
-            
+
             ax = fig.add_subplot(223)
             ax.set_xlabel(r"$Time\ (sec.)$", fontsize = 14)
             ax.set_ylabel(r"$Integrated\ intensity\ (Counts)$", fontsize = 14)
             plt.xlim(tscan.min(), tscan.max())
             plt.plot(tscan, fit_p[:,1])
-            
+
             ax = fig.add_subplot(222)
             ax.set_xlabel(r"$Time\ (sec.)$", fontsize = 14)
             ax.set_ylabel(r"$Peak\ position\ (deg.)$", fontsize = 14)
             plt.xlim(tscan.min(), tscan.max())
             plt.plot(tscan, fit_p[:,3])
-            
+
             ax = fig.add_subplot(224)
             ax.set_xlabel(r"$Time\ (sec.)$", fontsize = 14)
             ax.set_ylabel(r"$FWHM\ (deg.)$", fontsize = 14)
@@ -462,12 +463,12 @@ def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, s
     bkg = intensity[intensity!=0].min()
     startpsi=int(startpsi)
     stoppsi=int(stoppsi)
-    
+
     if ((chi[1:]-chi[:-1]).sum()==0) and ((offset[1:]-offset[:-1]).sum()== 0):
         status = 0
     else:
         status = 1
-        
+
         # Determine tilting motor, chi or omega
         if ((chi[1:]-chi[:-1]).sum()==0):
             psi = offset
@@ -583,7 +584,7 @@ def generate_Stress(cleaned, file_name, line_count, wl, state_indv, state_fit, s
             #out_I = column_stack((psi, pos))
             #out_I = row_stack((append([0],phi), out_I))
             #savetxt(file_name + '_position_fit.txt', out_I, fmt = '%10.8f')
-            
+
             #export results
             outfile = open(file_name+ "_position_fit.txt", "w")
             outfile.write("#Psi    ")
@@ -611,7 +612,7 @@ def generate_Pole(cleaned, file_name, scantype, line_count, state_indv, state_an
     scanning = cleaned[:,8]
     intensity = cleaned[:,9]
     bkg = intensity[intensity!=0].min()
-    
+
     # Determine azimuth and zenith scanning motors
     if (scanning[::int(line_count)]-phi[::int(line_count)]).sum()==0:
         azimuth = scanning
@@ -625,7 +626,7 @@ def generate_Pole(cleaned, file_name, scantype, line_count, state_indv, state_an
         stepz = (zenith.max()-zenith.min())/(line_count-1)
     else:
         return 0
-    
+
     # Check data validity
     if ((azimuth[1:]-azimuth[:-1]).sum() == 0) and ((zenith[1:]-zenith[:-1]).sum() == 0):
         status = 0
@@ -641,7 +642,7 @@ def generate_Pole(cleaned, file_name, scantype, line_count, state_indv, state_an
         #Export data files
         if state_xyz == 1:
             savetxt(file_name + '_ChiPhiInt.txt', column_stack((zenith,azimuth, intensity)), fmt = '%10.8f')
-        
+
         #Convert to matrix for further processing
         if (azimuth[1] != azimuth[0]):
             azimuth = azimuth[:int(line_count):]
@@ -683,7 +684,7 @@ def generate_Custom(cleaned, file_name, line_count, state_th, state_tth, state_c
     tth = cleaned[:,7]
     angle = cleaned[:,8]
     intensity = cleaned[:,9]
-    
+
     if ((start!=0) or (stop!=0)):
         temperature = crop_data(temperature,line_count, start, stop, 0, 0)
         chi = crop_data(chi,line_count, start, stop, 0, 0)
@@ -725,5 +726,5 @@ def generate_Custom(cleaned, file_name, line_count, state_th, state_tth, state_c
         if state_tth == 1:
             name += " TTH= " + str(round(tth[i],3))
         savetxt(name+".txt", out_scan, fmt = '%10.8f')
-    
+
     return 1
