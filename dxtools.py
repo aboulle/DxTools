@@ -709,7 +709,7 @@ class MyApp(Frame):
         filename = filedialog.askopenfilename(filetypes = ftypes, initialdir=init_dir)
         if filename != '':
             self.filepath = filename
-            self.status.set("Processing data...")
+            self.status.set("Reading data, please wait.")
             self.status.pack(side=BOTTOM, fill=X)
             self.parent.config(cursor="watch")
             self.parent.update()
@@ -717,7 +717,6 @@ class MyApp(Frame):
             # if self.scan == "implementation_warning":
             #     self.warning()
             #     pass
-            process_matrix(filename)
             self.parent.config(cursor="")
             self.status.set("Done.")
             self.export_path=self.filepath[:-4]
@@ -725,7 +724,7 @@ class MyApp(Frame):
             f = open("last_path", "w")
             f.write(os.path.split(self.filepath)[0])
             f.close()
-            # self.raw_data = loadtxt("tmp")
+            process_matrix(filename)
 
     def processRSM(self, event = None):
         if self.flag_data == 1:

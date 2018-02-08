@@ -14,8 +14,20 @@ from VertSlider import VertSlider
 import numpy as np
 from scipy.optimize import leastsq
 
-def process_matrix(file_name):
+class coord_list:
+	def __init__(self):
+		self.value = []
 
+	def add_to_list(self,new):
+		self.value = np.concatenate((self.value,new))
+
+	def remove_from_list(self,new):
+		self.value = np.delete(self.value, new)
+
+	def getvalue(self):
+		return self.value
+
+def process_matrix(file_name):
 	plt.style.use('bmh')
 	plt.rcParams['keymap.fullscreen'] = ''
 	plt.rcParams['keymap.back'] = ''
@@ -31,9 +43,9 @@ def process_matrix(file_name):
 	thresh = 1 #minimum intensity
 	bkg = 0.1
 	# initialize global variables
-	list_x = []
-	list_z = []
-	peak_list = []
+	list_x = coord_list()
+	list_z = coord_list()
+	peak_list = coord_list()
 	fit_matrix = np.zeros(np.shape(intensity))
 	guess_list=[None]*10
 	p_fit = [None]*10
@@ -95,64 +107,64 @@ def process_matrix(file_name):
 # ███████   ████   ███████ ██   ████    ██        ██       ██████  ██   ████  ██████    ██    ██  ██████  ██   ████ ███████
 
 	def fit2D(event, list_x, list_z, fit_matrix, guess_list, peak_list, p_fit, contour_list):
-		#global list_x, list_z, fit_matrix, x, z, guess_list, peak_list, p_fit
-		#global ax1, ax2, ax3
+		print(guess_list)
+		print(p_fit)
+		print(contour_list)
 		kill_flag = []
 		# Check if an area has been selected
-		if len(list_x) == 0:
+		if len(list_x.getvalue()) == 0:
 			print("No area selected. Using current window.")
 			select_area(event, list_x, list_z)
-		# print(list_x, list_z)
 		# else:
 		#Check if some areas are included in others and remove the smallest
-		# print(list_x)
-		# print(list_z)
-		for i in range(int(len(list_x)/2)):
-			for j in range(int(len(list_x)/2)):
-				if (list_x[2*i]>list_x[2*j])\
-				and (list_x[2*i+1]<list_x[2*j+1])\
-				and (list_z[2*i]>list_z[2*j])\
-				and (list_z[2*i+1]<list_z[2*j+1]):
+		print(list_x.getvalue())
+		print(list_z.getvalue())
+		for i in range(int(len(list_x.getvalue())/2)):
+			for j in range(int(len(list_x.getvalue())/2)):
+				if (list_x.getvalue()[2*i]>list_x.getvalue()[2*j])\
+				and (list_x.getvalue()[2*i+1]<list_x.getvalue()[2*j+1])\
+				and (list_z.getvalue()[2*i]>list_z.getvalue()[2*j])\
+				and (list_z.getvalue()[2*i+1]<list_z.getvalue()[2*j+1]):
 					kill_flag = np.concatenate((kill_flag,[i]))
 		# print("kill flag", kill_flag)
 		for i in kill_flag:
-			list_x = np.delete(list_x, [int(2*i), int(2*i+1)])
-			list_z = np.delete(list_z, [int(2*i), int(2*i+1)])
+			list_x.remove_from_list([int(2*i), int(2*i+1)])
+			list_z.remove_from_list([int(2*i), int(2*i+1)])
 			print("Killed", len(kill_flag), "sub-areas")
 			# print(list_z)
 		# Fit in all selected areas
-		for i in range(int(len(list_x)/2)):
+		for i in range(int(len(list_x.getvalue())/2)):
 			print("AREA", i)
 			first_peak = 1
 			#convert Q coordinates in pixel
-			ix0=int((list_x[2*i+0]-Qx.min())/step)
-			ix1=int((list_x[2*i+1]-Qx.min())/step)
-			iz0=int((list_z[2*i+0]-Qz.min())/step)
-			iz1=int((list_z[2*i+1]-Qz.min())/step)
+			ix0=int((list_x.getvalue()[2*i+0]-Qx.min())/step)
+			ix1=int((list_x.getvalue()[2*i+1]-Qx.min())/step)
+			iz0=int((list_z.getvalue()[2*i+0]-Qz.min())/step)
+			iz1=int((list_z.getvalue()[2*i+1]-Qz.min())/step)
 			#extract sub data ranges to be fitted
 			zoomQx=Qx[ix0:ix1+1:]
 			zoomQz=Qz[iz0:iz1+1:]
 			zoomInt=intensity[iz0:iz1+1:,ix0:ix1+1:]
 			zoomQx, zoomQz=np.meshgrid(zoomQx, zoomQz)
 			#guess center and width of 2D gaussian
-			xc=(list_x[2*i+0]+list_x[2*i+1])/2
-			zc=(list_z[2*i+0]+list_z[2*i+1])/2
-			w=list_x[2*i+1]-list_x[2*i+0]
-			h=list_z[2*i+1]-list_z[2*i+0]
+			xc=(list_x.getvalue()[2*i+0]+list_x.getvalue()[2*i+1])/2
+			zc=(list_z.getvalue()[2*i+0]+list_z.getvalue()[2*i+1])/2
+			w=list_x.getvalue()[2*i+1]-list_x.getvalue()[2*i+0]
+			h=list_z.getvalue()[2*i+1]-list_z.getvalue()[2*i+0]
 			exp_data=zoomInt.ravel()
 			# Check if no peak has been selected: take center of area
-			print("Area coordinates", list_x, list_z)
-			print("Peak coordinates", peak_list)
-			if len(peak_list) == 0:
+			print("Area coordinates", list_x.getvalue(), list_z.getvalue())
+			print("Peak coordinates", peak_list.getvalue())
+			if len(peak_list.getvalue()) == 0:
 				guess_list[i]=[exp_data.max(), xc, zc, w/3., h/3., 0*np.pi/180, exp_data.min()]
-				peak_list = np.concatenate((peak_list,[xc, zc]))
+				peak_list.add_to_list([xc, zc])
 
 			else:
 				# If peaks have been manually selected, check if in area and add to guess
-				for ii in range(int(len(peak_list)/2)):
+				for ii in range(int(len(peak_list.getvalue())/2)):
 					# peak coordinates
-					xc = peak_list[2*ii]
-					yc = peak_list[2*ii+1]
+					xc = peak_list.getvalue()[2*ii]
+					yc = peak_list.getvalue()[2*ii+1]
 					# check if peak in area
 					if (xc>zoomQx.min()) and (xc<zoomQx.max()) and (yc>zoomQz.min()) and (yc<zoomQz.max()):
 						print("Peak", ii, "is in area", i)
@@ -171,7 +183,7 @@ def process_matrix(file_name):
 							first_peak = 0
 							print("Initialize first peak")
 							# if area i has never been fitted before, create guess
-							if p_fit[i]==None:
+							if p_fit[i] is None:
 								print("Create new data")
 								guess_list[i]=[exp_data.max(), xc, zc, w/3., h/3., 0*np.pi/180]
 							else:
@@ -181,7 +193,7 @@ def process_matrix(file_name):
 						else:
 							# if available use result of previous fit, otherwise create new
 							print("Initialize other peaks")
-							if p_fit[i]!=None:
+							if p_fit[i] is not None:
 								if len(p_fit[i][6*ii:6*ii+7:])==6:
 									print("Re-use previous data")
 									guess_list[i] = np.concatenate((guess_list[i], p_fit[i][6*ii:6*ii+7:]))
@@ -198,10 +210,10 @@ def process_matrix(file_name):
 			fit=NtwoD_Gaussian((zoomQx, zoomQz),p_fit[i]).reshape(np.shape(zoomQx)[0], np.shape(zoomQz)[1])
 			# Print results
 
-			for ii in range(int(len(peak_list)/2)):
+			for ii in range(int(len(peak_list.getvalue())/2)):
 				# peak coordinates
-				xc = peak_list[2*ii]
-				yc = peak_list[2*ii+1]
+				xc = peak_list.getvalue()[2*ii]
+				yc = peak_list.getvalue()[2*ii+1]
 				# check if peak in area
 				if (xc>zoomQx.min()) and (xc<zoomQx.max()) and (yc>zoomQz.min()) and (yc<zoomQz.max()):
 					print("************************************")
@@ -215,7 +227,7 @@ def process_matrix(file_name):
 					print("************************************")
 
 			# Draw contour
-			if contour_list[i] != None:
+			if contour_list[i] is not None:
 				for coll in contour_list[i].collections:
 					try:
 						coll.remove()
@@ -256,9 +268,9 @@ def process_matrix(file_name):
 	def reset(event, list_x, list_z, x, z, fit_matrix, peak_list, guess_list, p_fit, contour_list):
 		#global ax1, ax2, ax3, ax4, l0, l1, l2, l3
 		#global list_x, list_z, x, z, fit_matrix, peak_list, guess_list, p_fit, contour_list
-		list_x = []
-		list_z = []
-		peak_list = []
+		list_x.__init__()
+		list_z.__init__()
+		peak_list.__init__()
 		fit_matrix = np.zeros(np.shape(intensity))
 		guess_list=[None]*10
 		p_fit=[None]*10
@@ -314,8 +326,9 @@ def process_matrix(file_name):
 		ax1.add_patch(rectangle)
 		fig.canvas.draw_idle()
 
-		list_x=np.concatenate((list_x,[xlo,xhi]))
-		list_z=np.concatenate((list_z,[ylo,yhi]))
+		list_x.add_to_list([xlo,xhi])
+		list_z.add_to_list([ylo,yhi])
+
 
 	def key_press(event, list_x, list_z, x, z):
 		#global list_x, list_z, slider_Qx, slider_Qz, ax1, ax2, ax3, x, z
@@ -354,7 +367,7 @@ def process_matrix(file_name):
 			circle=patches.Circle((ix,iy),radius=5*step, fill=False, linestyle='solid', linewidth=2, edgecolor="yellow")
 			ax1.add_patch(circle)
 			# fig.canvas.draw_idle()
-			peak_list = np.concatenate((peak_list,[ix, iy]))
+			peak_list.add_to_list([ix, iy])
 		# Right click in map to select slider coordinates
 		if event.button == 3:
 			slider_Qx.set_val(event.xdata)
@@ -449,6 +462,6 @@ def process_matrix(file_name):
 	fig.canvas.mpl_connect('key_press_event', lambda event: key_press(event, list_x, list_z, x, z))
 	fig.canvas.mpl_connect('button_press_event', lambda event: onclick(event, peak_list, x, z))
 
-	print(list_x, list_z)
+	print(list_x.getvalue(), list_z.getvalue())
 
 	plt.show()
