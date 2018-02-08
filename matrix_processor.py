@@ -3,8 +3,8 @@
 # FIX AREA COMPARISON
 # Remove all unnecessary relim and plot_idle
 
-import matplotlib
-matplotlib.use('Qt5Agg')
+#import matplotlib
+#matplotlib.use('Qt5Agg')
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, Button#, TextBox
 from matplotlib.colors import LogNorm
@@ -26,9 +26,10 @@ def process_matrix(file_name):
 	step = Qx[1]-Qx[0]
 	if intensity.max()<10:
 		intensity=np.power(10,intensity)
-	
+
 	th=3 # Integration width
 	thresh = 1 #minimum intensity
+	bkg = 0.1
 	# initialize global variables
 	list_x = []
 	list_z = []
@@ -100,7 +101,8 @@ def process_matrix(file_name):
 		# Check if an area has been selected
 		if len(list_x) == 0:
 			print("No area selected. Using current window.")
-			select_area(event)
+			select_area(event, list_x, list_z)
+		# print(list_x, list_z)
 		# else:
 		#Check if some areas are included in others and remove the smallest
 		# print(list_x)
@@ -111,7 +113,7 @@ def process_matrix(file_name):
 				and (list_x[2*i+1]<list_x[2*j+1])\
 				and (list_z[2*i]>list_z[2*j])\
 				and (list_z[2*i+1]<list_z[2*j+1]):
-				kill_flag = np.concatenate((kill_flag,[i]))
+					kill_flag = np.concatenate((kill_flag,[i]))
 		# print("kill flag", kill_flag)
 		for i in kill_flag:
 			list_x = np.delete(list_x, [int(2*i), int(2*i+1)])
@@ -311,6 +313,7 @@ def process_matrix(file_name):
 		rectangle=patches.Rectangle((xlo,ylo),w,h, fill=False, linestyle='dotted', linewidth=2, edgecolor="orange")
 		ax1.add_patch(rectangle)
 		fig.canvas.draw_idle()
+
 		list_x=np.concatenate((list_x,[xlo,xhi]))
 		list_z=np.concatenate((list_z,[ylo,yhi]))
 
@@ -334,7 +337,7 @@ def process_matrix(file_name):
 			slider_Qz.set_val(slider_Qz.val+step)
 		if event.key == "down":
 			slider_Qz.set_val(slider_Qz.val-step)
-		
+
 		# ax2.relim()
 		# ax2.autoscale_view()
 		# ax3.relim()
@@ -441,9 +444,11 @@ def process_matrix(file_name):
 	slider_Qz.on_changed(lambda event: update(event, x, z))
 	buttonSave.on_clicked(save_scans)
 	buttonReset.on_clicked(lambda event: reset(event, list_x, list_z, x, z, fit_matrix, peak_list, guess_list, p_fit, contour_list))
-	buttonFit.on_clicked(lambda event: fit2D(event, list_x, list_z, fit_matrix, guess_list, peak_list, p_fit, contour_list)))
+	buttonFit.on_clicked(lambda event: fit2D(event, list_x, list_z, fit_matrix, guess_list, peak_list, p_fit, contour_list))
 	buttonSelect.on_clicked(lambda event: select_area(event, list_x, list_z))
 	fig.canvas.mpl_connect('key_press_event', lambda event: key_press(event, list_x, list_z, x, z))
-	fig.canvas.mpl_connect('button_press_event', lambda event: onclick(event, x, z))
+	fig.canvas.mpl_connect('button_press_event', lambda event: onclick(event, peak_list, x, z))
+
+	print(list_x, list_z)
 
 	plt.show()
