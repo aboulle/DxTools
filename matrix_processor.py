@@ -216,7 +216,7 @@ def process_matrix(file_name):
 						coll.remove()
 					except:
 						continue
-			contour_list[i] = ax1.contour(zoomQx, zoomQz, np.log10(fit), 8, colors='w', linewidths=1)
+			contour_list[i] = ax1.contour(zoomQx, zoomQz, np.log10(fit), 10, colors='w', linewidths=1)
 			# Draw profiles
 			fit_matrix[iz0:iz1+1:,ix0:ix1+1:]=fit
 			l2fit.set_xdata(extract_vprofile(fit_matrix, x, th))
