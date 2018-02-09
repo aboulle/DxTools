@@ -128,11 +128,14 @@ class MyApp(Frame):
 
         self.state_log1= IntVar()
         self.state_log1.set(1)
-        button_log1 = ttk.Checkbutton(f1, text="Log(Intensity) scale.		Intensity threshold: ", variable=self.state_log1)
-        button_log1.grid(row=1, column=0, columnspan = 3, sticky="w", pady = (0,0), padx = (15,0))
+        button_log1 = ttk.Checkbutton(f1, text="Log(Intensity) scale. Log(I) min/max: ", variable=self.state_log1)
+        button_log1.grid(row=1, column=0, columnspan = 2, sticky="w", pady = (0,0), padx = (15,0))
         self.entry_thresh1=ttk.Entry(f1, width=7)
-        self.entry_thresh1.grid(row = 1, column=3, sticky = "w", pady = (0,0), padx=(0,0))
+        self.entry_thresh1.grid(row = 1, column=2, sticky = "w", pady = (0,0), padx=(0,0))
         self.entry_thresh1.insert(0,0.000)
+        self.entry_thresh2=ttk.Entry(f1, width=7)
+        self.entry_thresh2.grid(row = 1, column=3, sticky = "w", pady = (0,0), padx=(0,0))
+        self.entry_thresh2.insert(0,0.000)
 
         self.state_angmat1 = IntVar()
         self.state_angmat1.set(0)
@@ -737,7 +740,7 @@ class MyApp(Frame):
                      int(self.state_log1.get()), int(self.state_angmat1.get()), int(self.state_qmat1.get()),
                      int(self.state_xyz1.get()), float(self.entry_step1.get()), float(self.entry_skipstartp1.get()),
                      float(self.entry_skipstopp1.get()), float(self.entry_skipstarts1.get()),float(self.entry_skipstops1.get()),
-                     float(self.entry_thresh1.get()))
+                     float(self.entry_thresh1.get()), float(self.entry_thresh2.get()))
             self.status.set("Done.")
             self.parent.config(cursor="")
             if status == 0:

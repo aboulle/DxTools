@@ -23,7 +23,7 @@ def crop_data(input_data, nlines, start, stop, start2, stop2):
     data_matrix = data_matrix[start2:nscans-stop2:, start:nlines-stop:]
     return data_matrix.flatten()
 
-def generate_RSM(cleaned, file_name, scantype, line_count, wl, state_log, state_angmat, state_qmat, state_xyz, step, start, stop, start2, stop2, thresh):
+def generate_RSM(cleaned, file_name, scantype, line_count, wl, state_log, state_angmat, state_qmat, state_xyz, step, start, stop, start2, stop2, thresh, threshmax):
     line_count = int(line_count)
     start = int(start)
     stop = int(stop)
@@ -36,6 +36,8 @@ def generate_RSM(cleaned, file_name, scantype, line_count, wl, state_log, state_
     scanning = cleaned[:,8]
     intensity = cleaned[:,9]
     bkg = intensity[intensity!=0].min()
+    if threshmax == 0.0:
+        threshmax = log10(intensity.max())
 
     # Check data validity
     if ((om[1:]-om[:-1]).sum() == 0) and ((phi[1:]-phi[:-1]).sum() == 0):
@@ -126,7 +128,7 @@ def generate_RSM(cleaned, file_name, scantype, line_count, wl, state_log, state_
             ax.set_ylabel(r"$Q_z (2 \pi / \AA)$", fontsize=16)
         if inplane == 1:
             ax.set_ylabel(r"$Q_y (2 \pi / \AA)$", fontsize=16)
-        plt.imshow(grid_I.T, extent=(Qx.min(),Qx.max()+step,Qz.min(),Qz.max()+step), origin='lower', cmap='jet', vmin=thresh)
+        plt.imshow(grid_I.T, extent=(Qx.min(),Qx.max()+step,Qz.min(),Qz.max()+step), origin='lower', cmap='jet', vmin=thresh, vmax=threshmax)
         plt.tight_layout()
         plt.show()
 
