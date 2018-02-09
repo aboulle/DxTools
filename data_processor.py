@@ -665,7 +665,7 @@ def generate_Pole(cleaned, file_name, scantype, line_count, state_indv, state_an
         r, theta = meshgrid(zenith, azimuth*pi/180)
         plt.ion()
         fig, ax = plt.subplots(subplot_kw=dict(projection='polar'))
-        ax.contourf(theta, r, log10(int_matrix.T+bkg), 25)
+        ax.contourf(theta, r, log10(int_matrix.T+bkg), 25, cmap='jet')
         plt.show()
 
     return status
