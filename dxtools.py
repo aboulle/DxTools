@@ -7,6 +7,7 @@ alexandre.boulle@unilim.fr
 from tkinter import *
 from tkinter import filedialog
 from tkinter import messagebox
+from matrix_processor import *
 import tkinter.ttk as ttk
 import matplotlib.pyplot as plt
 import os
@@ -61,7 +62,7 @@ class MyApp(Frame):
         self.status = StatusBar(self)
         self.status.set("Welcome to Dx Tools")
         self.status.pack(side=BOTTOM, fill=X, pady = 2, padx = 5)
-        
+
         #****************************************
         ## Create menu bar
         #****************************************
@@ -71,6 +72,8 @@ class MyApp(Frame):
         fileMenu = Menu(menubar, tearoff=0)
         fileMenu.add_command(label="Import uxd", command=self.importUXD)
         fileMenu.add_command(label="Import brml", command=self.importBRML)
+        fileMenu.add_separator()
+        fileMenu.add_command(label="Import intensity matrix", command=self.importMATRIX)
         fileMenu.add_separator()
         fileMenu.add_command(label="Exit", command=self.quit)
         menubar.add_cascade(label="File", menu=fileMenu)
@@ -119,17 +122,20 @@ class MyApp(Frame):
         f1.rowconfigure(7, weight=1, minsize=rowsize)
         f1.rowconfigure(8, weight=1, minsize=rowsize)
         f1.rowconfigure(9, weight=1, minsize=rowsize)
-        
+
         label_options1 = ttk.Label(f1, text="Export options:")
         label_options1.grid(row=0, column=0, sticky = "w", pady = (0,0), padx = (5,0))
-        
+
         self.state_log1= IntVar()
         self.state_log1.set(1)
-        button_log1 = ttk.Checkbutton(f1, text="Log(Intensity) scale.		Intensity threshold: ", variable=self.state_log1)
-        button_log1.grid(row=1, column=0, columnspan = 3, sticky="w", pady = (0,0), padx = (15,0))
+        button_log1 = ttk.Checkbutton(f1, text="Log(Intensity) scale. Log(I) min/max: ", variable=self.state_log1)
+        button_log1.grid(row=1, column=0, columnspan = 2, sticky="w", pady = (0,0), padx = (15,0))
         self.entry_thresh1=ttk.Entry(f1, width=7)
-        self.entry_thresh1.grid(row = 1, column=3, sticky = "w", pady = (0,0), padx=(0,0))
+        self.entry_thresh1.grid(row = 1, column=2, sticky = "w", pady = (0,0), padx=(0,0))
         self.entry_thresh1.insert(0,0.000)
+        self.entry_thresh2=ttk.Entry(f1, width=7)
+        self.entry_thresh2.grid(row = 1, column=3, sticky = "w", pady = (0,0), padx=(0,0))
+        self.entry_thresh2.insert(0,0.000)
 
         self.state_angmat1 = IntVar()
         self.state_angmat1.set(0)
@@ -156,7 +162,7 @@ class MyApp(Frame):
 
         label_skip1 = ttk.Label(f1, text="Skip points at start/stop:")
         label_skip1.grid(row=6, column=0, columnspan=3, rowspan=1, sticky = "w", pady = (0,0), padx = (5,0))
-        
+
         label_skipstartp1 = ttk.Label(f1, text="Primary scanning axis: ")
         label_skipstartp1.grid(row=7, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (15,0))
         self.entry_skipstartp1=ttk.Entry(f1, width=7)
@@ -165,7 +171,7 @@ class MyApp(Frame):
         self.entry_skipstopp1=ttk.Entry(f1, width = 7)
         self.entry_skipstopp1.grid(row = 7, column=3, sticky = "w", pady = (0,0), padx=(0,0))
         self.entry_skipstopp1.insert(0,0)
-        
+
         label_skipstarts1 = ttk.Label(f1, text="Secondary axis:")
         label_skipstarts1.grid(row=8, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (15,0))
         self.entry_skipstarts1=ttk.Entry(f1, width=7)
@@ -174,7 +180,7 @@ class MyApp(Frame):
         self.entry_skipstops1=ttk.Entry(f1, width = 7)
         self.entry_skipstops1.grid(row = 8, column=3, sticky = "w", pady = (0,0), padx=(0,0))
         self.entry_skipstops1.insert(0,0)
-        
+
         self.process1=ttk.Button(f1, text="Process Data", command=self.processRSM)
         self.process1.grid(row=9, column=0, columnspan=4, sticky="ew", pady=(0,0), padx=(20,20))
         self.process1.focus()
@@ -199,11 +205,11 @@ class MyApp(Frame):
         f2.rowconfigure(7, weight=1, minsize=rowsize)
         f2.rowconfigure(8, weight=1, minsize=rowsize)
         f2.rowconfigure(9, weight=1, minsize=rowsize)
-        
-        
+
+
         label_options2 = ttk.Label(f2, text="Export options:")
         label_options2.grid(row=0, column=0, sticky = "w", pady = (0,0), padx = (5,0))
-        
+
         self.state_indv2= IntVar()
         self.state_indv2.set(1)
         button_indv2 = ttk.Checkbutton(f2, text="Individual scans.", variable=self.state_indv2)
@@ -296,7 +302,7 @@ class MyApp(Frame):
 
         label_skip3 = ttk.Label(f3, text="Skip points at start/stop:")
         label_skip3.grid(row=6, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (5,0))
-        
+
         label_skipstart3 = ttk.Label(f3, text="Primary scanning axis:")
         label_skipstart3.grid(row=7, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (15,0))
         self.entry_skipstart3=ttk.Entry(f3, width=7)
@@ -320,7 +326,7 @@ class MyApp(Frame):
         self.process3.grid(row=9, column=0, columnspan=4, sticky="ew", pady=(0,0), padx=(20,20))
         self.process3.focus()
         self.process3.bind('<Return>', self.processX)
-        
+
         #****************************************
         # Tab: Time
         #****************************************
@@ -364,7 +370,7 @@ class MyApp(Frame):
 
         label_skip4 = ttk.Label(f4, text="Skip points at start/stop:")
         label_skip4.grid(row=6, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (5,0))
-        
+
         label_skipstart4 = ttk.Label(f4, text="Primary scanning axis:")
         label_skipstart4.grid(row=7, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (15,0))
         self.entry_skipstart4=ttk.Entry(f4, width=7)
@@ -388,7 +394,7 @@ class MyApp(Frame):
         self.process4.grid(row=9, column=0, columnspan=4, sticky="ew", pady=(0,0), padx=(20,20))
         self.process4.focus()
         self.process4.bind('<Return>', self.processTime)
-        
+
         #****************************************
         # Tab: Sin²Psi
         #****************************************
@@ -406,7 +412,7 @@ class MyApp(Frame):
         f5.rowconfigure(7, weight=1, minsize=rowsize)
         f5.rowconfigure(8, weight=1, minsize=rowsize)
         f5.rowconfigure(9, weight=1, minsize=rowsize)
-        
+
         label_options5 = ttk.Label(f5, text="Export options:")
         label_options5.grid(row=0, column=0, sticky = "w", pady = (0,0), padx = (5,0))
 
@@ -417,7 +423,7 @@ class MyApp(Frame):
 
         label_spacer5 = ttk.Label(f5, text="")
         label_spacer5.grid(row=2, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (5,0))
-        
+
         label_analysis5 = ttk.Label(f5, text="Data analysis: ")
         label_analysis5.grid(row=3, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (5,0))
 
@@ -440,7 +446,7 @@ class MyApp(Frame):
         self.entry_skipstop5=ttk.Entry(f5, width = 7)
         self.entry_skipstop5.grid(row = 7, column=3, sticky = "w", pady = (0,0), padx = (0,0))
         self.entry_skipstop5.insert(0,0)
-        
+
         label_skipstartpsi5 = ttk.Label(f5, text="Psi range:")
         label_skipstartpsi5.grid(row=8, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (15,0))
         self.entry_skipstartpsi5=ttk.Entry(f5, width=7)
@@ -454,7 +460,7 @@ class MyApp(Frame):
         self.process5.grid(row=9, column=0, columnspan=4, sticky="ew", pady=(0,0), padx=(20,20))
         self.process5.focus()
         self.process5.bind('<Return>', self.processStress)
-        
+
         #****************************************
         # Tab: Pole figure
         #****************************************
@@ -472,10 +478,10 @@ class MyApp(Frame):
         f6.rowconfigure(7, weight=1, minsize=rowsize)
         f6.rowconfigure(8, weight=1, minsize=rowsize)
         f6.rowconfigure(9, weight=1, minsize=rowsize)
-        
+
         label_options6 = ttk.Label(f6, text="Export options:")
         label_options6.grid(row=0, column=0, sticky = "w", pady = (0,0), padx = (5,0))
-        
+
         self.state_indv6= IntVar()
         self.state_indv6.set(1)
         button_indv6 = ttk.Checkbutton(f6, text="Individual scans.", variable=self.state_indv6)
@@ -490,16 +496,16 @@ class MyApp(Frame):
         self.state_xyz6.set(0)
         button_xyzf6 = ttk.Checkbutton(f6, text="3-column format (Chi, Phi, Intensity).", variable=self.state_xyz6)
         button_xyzf6.grid(row=3, column=0, columnspan=3, sticky="w", pady = (0,0), padx = (15,0))
-        
+
         label_spacer6 = ttk.Label(f6, text="")
         label_spacer6.grid(row=4, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (5,0))
-        
+
         label_spacer62 = ttk.Label(f6, text="")
         label_spacer62.grid(row=5, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (5,0))
 
         label_skip6 = ttk.Label(f6, text="Skip points at start/stop:")
         label_skip6.grid(row=6, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (5,0))
-        
+
         label_skipstartp6 = ttk.Label(f6, text="Primary scanning axis: ")
         label_skipstartp6.grid(row=7, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (15,0))
         self.entry_skipstartp6=ttk.Entry(f6, width=7)
@@ -508,7 +514,7 @@ class MyApp(Frame):
         self.entry_skipstopp6=ttk.Entry(f6, width = 7)
         self.entry_skipstopp6.grid(row = 7, column=3, sticky = "w", pady = (0,0), padx=(0,0))
         self.entry_skipstopp6.insert(0,0)
-        
+
         label_skipstarts6 = ttk.Label(f6, text="Secondary axis:")
         label_skipstarts6.grid(row=8, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (15,0))
         self.entry_skipstarts6=ttk.Entry(f6, width=7)
@@ -517,12 +523,12 @@ class MyApp(Frame):
         self.entry_skipstops6=ttk.Entry(f6, width = 7)
         self.entry_skipstops6.grid(row = 8, column=3, sticky = "w", pady = (0,0), padx=(0,0))
         self.entry_skipstops6.insert(0,0)
-        
+
         self.process6=ttk.Button(f6, text="Process Data", command=self.processPole)
         self.process6.grid(row=9, column=0, columnspan=4, sticky="ew", pady=(0,0), padx=(20,20))
         self.process6.focus()
         self.process6.bind('<Return>', self.processPole)
-        
+
         ##****************************************
         ## Tab: Custom
         ##****************************************
@@ -540,7 +546,7 @@ class MyApp(Frame):
         f7.rowconfigure(7, weight=1, minsize=rowsize)
         f7.rowconfigure(8, weight=1, minsize=rowsize)
         f7.rowconfigure(9, weight=1, minsize=rowsize)
-        
+
 
         label_select7 = ttk.Label(f7, text="Select looping motors: ")
         label_select7.grid(row=0, column=0, columnspan = 4, sticky = "w", pady = (0,0), padx = (5,0))
@@ -554,7 +560,7 @@ class MyApp(Frame):
         self.state_tth7.set(0)
         button_tth7 = ttk.Checkbutton(f7, text="2 Theta", variable=self.state_tth7)
         button_tth7.grid(row=1, column=1, sticky="w", pady = (0,0), padx = (15,0))
-        
+
         self.state_temp7 = IntVar()
         self.state_temp7.set(0)
         button_temp7 = ttk.Checkbutton(f7, text="Temperature", variable=self.state_temp7)
@@ -569,23 +575,23 @@ class MyApp(Frame):
         self.state_phi7.set(0)
         button_phi7 = ttk.Checkbutton(f7, text="Phi", variable=self.state_phi7)
         button_phi7.grid(row=2, column=1, sticky="w", pady = (0,0), padx = (15,0))
-        
+
         self.state_x7 = IntVar()
         self.state_x7.set(0)
         button_x7 = ttk.Checkbutton(f7, text="X", variable=self.state_x7)
         button_x7.grid(row=3, column=0, sticky="w", pady = (0,0), padx = (15,0))
-        
+
         self.state_y7 = IntVar()
         self.state_y7.set(0)
         button_y7 = ttk.Checkbutton(f7, text="Y", variable=self.state_y7)
         button_y7.grid(row=3, column=1, sticky="w", pady = (0,0), padx = (15,0))
-        
+
         label_spacer7 = ttk.Label(f7, text="")
         label_spacer7.grid(row=4, column=0, columnspan=3, rowspan=2, sticky = "w", pady = (0,0), padx = (5,0))
-       
+
         label_skip7 = ttk.Label(f7, text="Skip points at start/stop:")
         label_skip7.grid(row=6, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (5,0))
-       
+
         label_skipstart7 = ttk.Label(f7, text="Primary scanning axis:")
         label_skipstart7.grid(row=7, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (15,0))
         self.entry_skipstart7=ttk.Entry(f7, width=7)
@@ -594,7 +600,7 @@ class MyApp(Frame):
         self.entry_skipstop7=ttk.Entry(f7, width = 7)
         self.entry_skipstop7.grid(row = 7, column=3, sticky = "w", pady = (0,0))
         self.entry_skipstop7.insert(0,0)
-        
+
         label_spacer72 = ttk.Label(f7, text="")
         label_spacer72.grid(row=8, column=0, columnspan=3, sticky = "w", pady = (0,0), padx = (5,0))
 
@@ -614,16 +620,16 @@ class MyApp(Frame):
 
     def data_warning(self):
         messagebox.showerror("Warning", "No data to process. \n Load data first.")
-        
+
     def processing_warning(self):
         messagebox.showinfo("Warning", "Processing data, this may take some time.")
-    
+
     def reading_warning(self):
         messagebox.showinfo("Warning", "Reading data, this may take some time.")
-        
+
     def datatype_warning(self):
         messagebox.showerror("Error", "Not a valid data set.")
-        
+
     def file_econding_error(self):
         messagebox.showerror("Error", "Invalid data file encoding.\nConvert file to UTF-8.")
 
@@ -666,7 +672,7 @@ class MyApp(Frame):
             f.write(os.path.split(self.filepath)[0])
             f.close()
             self.raw_data = loadtxt("tmp")
-            
+
     def importBRML(self):
         try:
             f=open("last_path", "r")
@@ -695,6 +701,34 @@ class MyApp(Frame):
             f.close()
             self.raw_data = loadtxt("tmp")
 
+    def importMATRIX(self):
+        try:
+            f=open("last_path", "r")
+            init_dir=f.read()
+            f.close()
+        except:
+            init_dir=os.getcwd()
+        ftypes = [('Intensity matrix files', '*.txt')]
+        filename = filedialog.askopenfilename(filetypes = ftypes, initialdir=init_dir)
+        if filename != '':
+            self.filepath = filename
+            self.status.set("Reading data, please wait.")
+            self.status.pack(side=BOTTOM, fill=X)
+            self.parent.config(cursor="watch")
+            self.parent.update()
+            # self.scan, self.line, self.wl = brml_reader(filename)
+            # if self.scan == "implementation_warning":
+            #     self.warning()
+            #     pass
+            self.parent.config(cursor="")
+            self.status.set("Done.")
+            self.export_path=self.filepath[:-4]
+            # self.flag_data=1
+            f = open("last_path", "w")
+            f.write(os.path.split(self.filepath)[0])
+            f.close()
+            process_matrix(filename)
+
     def processRSM(self, event = None):
         if self.flag_data == 1:
             self.status.set("Computing reciprocal space map, please wait.")
@@ -706,7 +740,7 @@ class MyApp(Frame):
                      int(self.state_log1.get()), int(self.state_angmat1.get()), int(self.state_qmat1.get()),
                      int(self.state_xyz1.get()), float(self.entry_step1.get()), float(self.entry_skipstartp1.get()),
                      float(self.entry_skipstopp1.get()), float(self.entry_skipstarts1.get()),float(self.entry_skipstops1.get()),
-                     float(self.entry_thresh1.get()))
+                     float(self.entry_thresh1.get()), float(self.entry_thresh2.get()))
             self.status.set("Done.")
             self.parent.config(cursor="")
             if status == 0:
@@ -732,7 +766,7 @@ class MyApp(Frame):
         else:
             self.data_warning()
             pass
-    
+
     def processX(self, event = None):
         if self.flag_data == 1:
             self.status.set("Processing translation scan data, please wait.")
@@ -786,7 +820,7 @@ class MyApp(Frame):
         else:
             self.data_warning()
             pass
-    
+
     def processPole(self, event = None):
         if self.flag_data == 1:
             self.status.set("Computing pole figure, please wait.")
@@ -806,7 +840,7 @@ class MyApp(Frame):
         else:
             self.data_warning()
             pass
-    
+
     def processCustom(self, event = None):
         if self.flag_data == 1:
             self.status.set("Processing data, please wait.")
@@ -838,7 +872,7 @@ class MyApp(Frame):
         sys.exit()
         self.quit()
 
-    
+
 
 def main():
     print("Welcome to DxTools")
