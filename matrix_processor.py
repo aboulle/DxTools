@@ -34,7 +34,9 @@ def process_matrix(file_name):
 
 	rsm = np.loadtxt(file_name)
 	Qx, Qz, intensity = rsm[0,1:], rsm[1:,0], rsm[1:,1:]
-	step = Qx[1]-Qx[0]
+	# step = Qx[1]-Qx[0]
+	stepx = (Qx.max()-Qx.min()) / (len(Qx)-1)
+	stepz = (Qz.max()-Qz.min()) / (len(Qz)-1)
 	if intensity.max()<10:
 		intensity=np.power(10,intensity)
 
@@ -58,20 +60,25 @@ def process_matrix(file_name):
 
 	# Slicing functions
 	def extract_vprofile(intensity,coord,th):
-		index = int((coord-Qx.min())/step)
+		index = int((coord-Qx.min())/stepx)
 		width = int((th-1.)/2)
+		print(index)
+		print(np.shape(intensity))
 		if th == 1:
 			return intensity[:,index]
 		else:
 			return intensity[:,index-width:index+width+1:].sum(axis=1)
 
 	def extract_hprofile(intensity,coord,th):
-		index = int((coord-Qz.min())/step)
+		index = int((coord-Qz.min())/stepz)
 		width = int((th-1.)/2)
+		print(index)
+		print(np.shape(intensity))
 		if th == 1:
 			return intensity[index,:]
 		else:
 			return intensity[index-width:index+width+1:,:].sum(axis=0)
+
 
 	# A 2D Gaussian
 	def NtwoD_Gaussian(coord, params):
@@ -131,10 +138,10 @@ def process_matrix(file_name):
 			print("AREA", i)
 			first_peak = 1
 			#convert Q coordinates in pixel
-			ix0=int((list_x.getvalue()[2*i+0]-Qx.min())/step)
-			ix1=int((list_x.getvalue()[2*i+1]-Qx.min())/step)
-			iz0=int((list_z.getvalue()[2*i+0]-Qz.min())/step)
-			iz1=int((list_z.getvalue()[2*i+1]-Qz.min())/step)
+			ix0=int((list_x.getvalue()[2*i+0]-Qx.min())/stepx)
+			ix1=int((list_x.getvalue()[2*i+1]-Qx.min())/stepx)
+			iz0=int((list_z.getvalue()[2*i+0]-Qz.min())/stepz)
+			iz1=int((list_z.getvalue()[2*i+1]-Qz.min())/stepz)
 			#extract sub data ranges to be fitted
 			zoomQx=Qx[ix0:ix1+1:]
 			zoomQz=Qz[iz0:iz1+1:]
@@ -255,7 +262,7 @@ def process_matrix(file_name):
 		z = slider_Qz.val
 
 		ax1.clear()
-		ax1.imshow(intensity+bkg, extent=(Qx.min(),Qx.max()+step,Qz.min(),Qz.max()+step), origin='lower', cmap='jet', vmin=thresh, aspect=1, norm=LogNorm())
+		ax1.imshow(intensity+bkg, extent=(Qx.min(),Qx.max()+stepx,Qz.min(),Qz.max()+stepz), origin='lower', cmap='jet', vmin=thresh, aspect=1, norm=LogNorm())
 		l0, = ax1.plot([x, x], [Qz.min(), Qz.max()], 'r-', alpha=0.5, linewidth=th)
 		l1, = ax1.plot([Qx.min(), Qx.max()], [z, z], 'r-', alpha=0.5, linewidth=th)
 		ax1.set_xlim(Qx.min(),Qx.max())
@@ -315,20 +322,20 @@ def process_matrix(file_name):
 			#fit2D(event)
 		# Use arrows to modify slider
 		if event.key == "left":
-			slider_Qx.set_val(slider_Qx.val-step)
+			slider_Qx.set_val(slider_Qx.val-stepx)
 		if event.key == "right":
-			slider_Qx.set_val(slider_Qx.val+step)
+			slider_Qx.set_val(slider_Qx.val+stepx)
 		if event.key == "up":
-			slider_Qz.set_val(slider_Qz.val+step)
+			slider_Qz.set_val(slider_Qz.val+stepz)
 		if event.key == "down":
-			slider_Qz.set_val(slider_Qz.val-step)
+			slider_Qz.set_val(slider_Qz.val-stepz)
 
 	def onclick(event, peak_list, x, z):
 		#global peak_list, ax1, ax2, ax3, x, z, slider_Qx, slider_Qz
 		# Double click to select peak
 		if event.dblclick:
 			ix, iy = event.xdata, event.ydata
-			circle=patches.Circle((ix,iy),radius=5*step, fill=False, linestyle='solid', linewidth=2, edgecolor="yellow")
+			circle=patches.Circle((ix,iy),radius=5*stepx, fill=False, linestyle='solid', linewidth=2, edgecolor="yellow")
 			ax1.add_patch(circle)
 			# fig.canvas.draw_idle()
 			peak_list.add_to_list([ix, iy])
@@ -360,7 +367,7 @@ def process_matrix(file_name):
 
 	# Plot map
 	ax1 = plt.axes(m_pos)
-	ax1.imshow(intensity+bkg, extent=(Qx.min(),Qx.max()+step,Qz.min(),Qz.max()+step), origin='lower', cmap='jet', vmin=thresh, aspect=1, norm=LogNorm())
+	ax1.imshow(intensity+bkg, extent=(Qx.min(),Qx.max()+stepx,Qz.min(),Qz.max()+stepz), origin='lower', cmap='jet', vmin=thresh, aspect=1, norm=LogNorm())
 	l0, = ax1.plot([x, x], [Qz.min(), Qz.max()], 'r-', alpha=0.5, linewidth=th)
 	l1, = ax1.plot([Qx.min(), Qx.max()], [z, z], 'r-', alpha=0.5, linewidth=th)
 	ax1.set_xlim(Qx.min(),Qx.max())
