@@ -62,8 +62,6 @@ def process_matrix(file_name):
 	def extract_vprofile(intensity,coord,th):
 		index = int((coord-Qx.min())/stepx)
 		width = int((th-1.)/2)
-		print(index)
-		print(np.shape(intensity))
 		if th == 1:
 			return intensity[:,index]
 		else:
@@ -72,8 +70,6 @@ def process_matrix(file_name):
 	def extract_hprofile(intensity,coord,th):
 		index = int((coord-Qz.min())/stepz)
 		width = int((th-1.)/2)
-		print(index)
-		print(np.shape(intensity))
 		if th == 1:
 			return intensity[index,:]
 		else:
