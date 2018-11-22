@@ -616,18 +616,23 @@ def generate_Pole(cleaned, file_name, scantype, line_count, state_indv, state_an
     bkg = intensity[intensity!=0].min()
 
     # Determine azimuth and zenith scanning motors
-    if (scanning[::int(line_count)]-phi[::int(line_count)]).sum()==0:
+    if (scanning[::int(line_count)]-khi[::int(line_count)]).sum()!=0:
         azimuth = scanning
         zenith = khi
         stepa = (azimuth.max()-azimuth.min())/(line_count-1)
         stepz = (zenith.max()-zenith.min())/((len(zenith)/line_count)-1)
-    elif (scanning[::line_count]-khi[::line_count]).sum()==0:
+        fast_phi = 1
+        print("Phi is the fast scanning motor.")
+    #elif (scanning[::line_count]-khi[::line_count]).sum()==0:
+    else:
         zenith = scanning
         azimuth = phi
         stepa = (azimuth.max()-azimuth.min())/((len(zenith)/line_count)-1)
         stepz = (zenith.max()-zenith.min())/(line_count-1)
-    else:
-        return 0
+        fast_phi = 0
+        print("Khi is the fast scanning motor.")
+    #else:
+        #return 0
 
     # Check data validity
     if ((azimuth[1:]-azimuth[:-1]).sum() == 0) and ((zenith[1:]-zenith[:-1]).sum() == 0):
@@ -656,18 +661,28 @@ def generate_Pole(cleaned, file_name, scantype, line_count, state_indv, state_an
 
         if state_indv == 1:
             for i in range(shape(int_matrix)[0]):
-                out_scan = column_stack((azimuth, int_matrix[i,:]))
-                savetxt(file_name + "_Scan"+str(i+1)+" PSI="+str(round(zenith[i],2))+".txt", out_scan, fmt = '%10.8f')
+                if fast_phi == 1:
+                    out_scan = column_stack((azimuth, int_matrix[i,:]))
+                    savetxt(file_name + "_Scan"+str(i+1)+" PSI="+str(round(zenith[i],2))+".txt", out_scan, fmt = '%10.8f')
+                else :
+                    out_scan = column_stack((zenith, int_matrix[i,:]))
+                    savetxt(file_name + "_Scan"+str(i+1)+" PHI="+str(round(azimuth[i],2))+".txt", out_scan, fmt = '%10.8f')
 
         if state_angmat == 1:
-            out_matrix = column_stack((zenith, int_matrix))
+            if fast_phi == 1:
+                out_matrix = column_stack((zenith, int_matrix))
+            else:
+                out_matrix = column_stack((zenith, int_matrix.T))
             out_matrix = row_stack((append([0], azimuth), out_matrix))
             savetxt(file_name + '_ChiPhi_matrix.txt', out_matrix.T, fmt = '%10.8f')
 
         r, theta = meshgrid(zenith, azimuth*pi/180)
         plt.ion()
         fig, ax = plt.subplots(subplot_kw=dict(projection='polar'))
-        ax.contourf(theta, r, log10(int_matrix.T+bkg), 25, cmap='jet')
+        if fast_phi == 1:
+            ax.contourf(theta, r, log10(int_matrix.T+bkg), 25, cmap='jet')
+        else:
+            ax.contourf(theta, r, log10(int_matrix+bkg), 25, cmap='jet')
         plt.show()
 
     return status
