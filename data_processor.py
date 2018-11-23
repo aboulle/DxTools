@@ -251,9 +251,11 @@ def generate_Xscan(cleaned, file_name, line_count, state_indv, state_matrix, sta
     else:
         status = 1
         # Determine the scanning motor, x or y
-        if tx[1]!=tx[0]:
+        if tx[int(line_count)]!=tx[0]:
+            print("X translation")
             tscan = tx
         else:
+            print("Y translation")
             tscan = ty
 
         # Crop data to desired dimensions
