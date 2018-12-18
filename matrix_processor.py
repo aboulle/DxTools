@@ -282,6 +282,9 @@ def process_matrix(file_name):
 	# Save extracted profiles
 	def save_scans(event):
 		outfile_name=file_name[:-4]
+		x = slider_Qx.val
+		z = slider_Qz.val
+		print("Extract scans at coordinates",x,z)
 		np.savetxt(outfile_name+".xscan", np.column_stack((Qx,extract_hprofile(intensity, z,th))), fmt='%10.8f')
 		np.savetxt(outfile_name+".zscan", np.column_stack((Qz,extract_vprofile(intensity, x,th))), fmt='%10.8f')
 
