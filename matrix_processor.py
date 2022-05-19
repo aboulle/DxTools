@@ -285,8 +285,8 @@ def process_matrix(file_name):
 		x = slider_Qx.val
 		z = slider_Qz.val
 		print("Extract scans at coordinates",x,z)
-		np.savetxt(outfile_name+".xscan", np.column_stack((Qx,extract_hprofile(intensity, z,th))), fmt='%10.8f')
-		np.savetxt(outfile_name+".zscan", np.column_stack((Qz,extract_vprofile(intensity, x,th))), fmt='%10.8f')
+		np.savetxt(outfile_name+"_"+str(round(z,3))+".xscan", np.column_stack((Qx,extract_hprofile(intensity, z,th))), fmt='%10.8f')
+		np.savetxt(outfile_name+"_"+str(round(x,3))+".zscan", np.column_stack((Qz,extract_vprofile(intensity, x,th))), fmt='%10.8f')
 
 	def select_area(event, list_x, list_z):
 		#global list_x, list_z, slider_Qx, slider_Qz, ax1, ax2, ax3
