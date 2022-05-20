@@ -316,6 +316,9 @@ def process_matrix(file_name):
 			i+=1
 			select_area(event, list_x, list_z)
 
+		if event.key == "S":
+			save_scans(event)
+
 		## Fitting shorcut
 		#if event.key == "f":
 			#fit2D(event)
