@@ -369,7 +369,7 @@ def process_matrix(file_name):
 
 	# Plot map
 	ax1 = plt.axes(m_pos)
-	ax1.imshow(intensity+bkg, extent=(Qx.min(),Qx.max()+stepx,Qz.min(),Qz.max()+stepz), origin='lower', cmap='jet', vmin=thresh, aspect=1, norm=LogNorm())
+	ax1.imshow(intensity+bkg, extent=(Qx.min(),Qx.max()+stepx,Qz.min(),Qz.max()+stepz), origin='lower', cmap='jet', aspect=1, norm=LogNorm(vmin=thresh))
 	l0, = ax1.plot([x, x], [Qz.min(), Qz.max()], 'r-', alpha=0.5, linewidth=th)
 	l1, = ax1.plot([Qx.min(), Qx.max()], [z, z], 'r-', alpha=0.5, linewidth=th)
 	ax1.set_xlim(Qx.min(),Qx.max())
