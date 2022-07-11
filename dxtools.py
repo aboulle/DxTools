@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import os
 import sys
 import shutil
+import numpy as np
 
 from data_reader import *
 from data_processor import *
@@ -671,7 +672,7 @@ class MyApp(Frame):
             f = open("last_path", "w")
             f.write(os.path.split(self.filepath)[0])
             f.close()
-            self.raw_data = loadtxt("tmp")
+            self.raw_data = np.loadtxt("tmp")
 
     def importBRML(self):
         try:
@@ -699,7 +700,7 @@ class MyApp(Frame):
             f = open("last_path", "w")
             f.write(os.path.split(self.filepath)[0])
             f.close()
-            self.raw_data = loadtxt("tmp")
+            self.raw_data = np.loadtxt("tmp")
 
     def importMATRIX(self):
         try:
