@@ -40,7 +40,7 @@ def process_matrix(file_name):
 	if intensity.max()<10:
 		intensity=np.power(10,intensity)
 
-	th=3 # Integration width
+	th=1 # Integration width
 	thresh = 1 #minimum intensity
 	bkg = 0.1
 	# initialize global variables
