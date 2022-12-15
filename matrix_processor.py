@@ -1,3 +1,12 @@
+"""
+Copyright (C) 2022 CNRS
+Author(s) Alexandre BOULLE
+…
+This software is governed by the CeCILL Free Software License Agreement v2.1
+You can  use, modify and/ or redistribute the software under the terms of the CECILL-2.1 at the following URL https://spdx.org/licenses/CECILL-2.1.html
+The fact that you are presently reading this means that you have had knowledge of the CECILL-2.1 and that you accept its terms.
+"""
+
 # coding: utf-8
 # TODO:
 # FIX AREA COMPARISON
