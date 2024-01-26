@@ -144,6 +144,7 @@ def brml_reader(file_name):
 #*****************************************************************************************************
     data_path = os.path.join(extract_path, "*0","InstructionContainer.xml")
     for file in sorted(glob.glob(data_path)):
+        file_number = 0
         tree = ET.parse(file)
         root = tree.getroot()
         for chain in root.findall("./ComparisonMethod/HrxrdAlignmentData"):
@@ -195,6 +196,7 @@ def brml_reader(file_name):
         #parsing XML file
         tree = ET.parse(file) 
         root = tree.getroot()
+       
         #obtain scan type
         for chain in (root.findall("./DataRoutes/DataRoute/ScanInformation") or root.findall("./ScanInformation")):
             scan_type = chain.get("VisibleName")
@@ -204,11 +206,19 @@ def brml_reader(file_name):
                 scan_type = "COUPLED"
             if ("Rocking" in scan_type) or ("rocking" in scan_type):
                 scan_type = "THETA"
+            if ("Still" in scan_type):
+                scan_type = "WTFBruker"
+        
+        print("Parsing scan #{}".format(file_nb(file)))
+        if scan_type == "WTFBruker":
+            print("No data... skipping")
+            continue
 
         # Check if temperature is recorded
         for chain in (root.findall("./DataRoutes/DataRoute/DataViews/RawDataView/Recording") or root.findall("./DataViews/RawDataView/Recording")):
             if "Temperature" in chain.get("LogicName"):
                 check_temperature = 1
+                print("Detected temperature measurement")
 
         #Find wl in RawData.xml
         for chain in root.findall("./FixedInformation/Instrument/PrimaryTracks/TrackInfoData/MountedOptics/InfoData/Tube/WaveLengthAlpha1"):
@@ -307,8 +317,9 @@ def brml_reader(file_name):
             h_start, min_start, sec_start = t_start.split(":")
             t_start = float(h_start)*3600 + float(min_start)*60 + float(sec_start)
 
-            if file_nb(file)==0:
+            if file_number==0:
                 abs_start = t_start
+                
         for chain in (root.findall("./TimeStampFinished")):
             d_stop = ((chain.text).split("T")[0]).split("-")[2]
             t_stop = ((chain.text).split("T")[1]).split("+")[0]
@@ -399,7 +410,8 @@ def brml_reader(file_name):
 
         if d_stop != d_start:
             n_day+=1
-            
+    
+    file_number += 1     
     outfile.close()
     if sys.platform == "win32":
         os.system("RMDIR "+ extract_path +" /s /q")
