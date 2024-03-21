@@ -171,6 +171,10 @@ def generate_Temp(cleaned, file_name, line_count, state_indv, state_matrix, stat
             savetxt(file_name + '_matrix.txt', out_I.T, fmt = '%10.8f')
 
         # Compute integrated intensity + plotting
+        nb_temp=len(temperature)-1
+        temp_min = temperature[0]
+        temp_max = temperature[nb_temp]
+            
         if state_fit == 0:
             out_Ii = int_matrix.sum(axis=1)
             #writes result file
@@ -185,12 +189,12 @@ def generate_Temp(cleaned, file_name, line_count, state_indv, state_matrix, stat
             fig=plt.figure()
             ax0 = fig.add_subplot(211)
             ax0.set_xlabel(r"$Temperature\ (deg.)$", fontsize = 14)
-            ax0.set_ylabel(r"$Scanning\ angle\ (deg.)$", fontsize = 14)
-            plt.imshow(log10(int_matrix+bkg).T, extent=(temperature.min(), temperature.max(), angle.min(),angle.max()), origin='lower', aspect="auto", cmap='jet')
+            ax0.set_ylabel(r"$Scanning\ angle\ (deg.)$", fontsize = 14)      
+            plt.imshow(log10(int_matrix+bkg).T, extent=(temp_min, temp_max, angle.min(),angle.max()), origin='lower', aspect="auto", cmap='jet')
             ax = fig.add_subplot(212, sharex=ax0)
             ax.set_xlabel(r"$Temperature\ (deg.)$", fontsize = 14)
             ax.set_ylabel(r"$Integrated\ intensity\ (counts)$", fontsize = 14)
-            plt.xlim(temperature.min(), temperature.max())
+            plt.xlim(temp_min, temp_max)
             plt.plot(temperature, out_Ii)
             plt.tight_layout()
         # Fit diffraction profiles with a pseudo Voigt + plotting
@@ -215,24 +219,24 @@ def generate_Temp(cleaned, file_name, line_count, state_indv, state_matrix, stat
             ax0 = fig.add_subplot(221)
             ax0.set_xlabel(r"$Temperature\ (deg.)$", fontsize = 14)
             ax0.set_ylabel(r"$Scanning\ angle\ (deg.)$", fontsize = 14)
-            plt.imshow(log10(int_matrix+bkg).T, extent=(temperature.min(), temperature.max(), angle.min(),angle.max()), origin='lower', aspect="auto", cmap='jet')
+            plt.imshow(log10(int_matrix+bkg).T, extent=(temp_min, temp_max, angle.min(),angle.max()), origin='lower', aspect="auto", cmap='jet')
 
             ax = fig.add_subplot(223)
             ax.set_xlabel(r"$Temperature\ (deg.)$", fontsize = 14)
             ax.set_ylabel(r"$Integrated\ intensity\ (counts)$", fontsize = 14)
-            plt.xlim(temperature.min(), temperature.max())
+            plt.xlim(temp_min, temp_max)
             plt.plot(temperature, fit_p[:,1])
 
             ax = fig.add_subplot(222)
             ax.set_xlabel(r"$Temperature\ (deg.)$", fontsize = 14)
             ax.set_ylabel(r"$Peak\ position\ (deg.)$", fontsize = 14)
-            plt.xlim(temperature.min(), temperature.max())
+            plt.xlim(temp_min, temp_max)
             plt.plot(temperature, fit_p[:,3])
 
             ax = fig.add_subplot(224)
             ax.set_xlabel(r"$Temperature\ (deg.)$", fontsize = 14)
             ax.set_ylabel(r"$FWHM\ (deg.)$", fontsize = 14)
-            plt.xlim(temperature.min(), temperature.max())
+            plt.xlim(temp_min, temp_max)
             plt.plot(temperature, fit_p[:,5])
             plt.tight_layout()
         plt.show()
