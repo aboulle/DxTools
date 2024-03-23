@@ -8,9 +8,11 @@ The fact that you are presently reading this means that you have had knowledge o
 """
 
 # -*- coding: utf-8 -*-
-from scipy import loadtxt, savetxt, pi, log10, sin, cos, mgrid, column_stack, row_stack, append, shape, loadtxt, zeros, meshgrid, nan
+from numpy import loadtxt, savetxt, pi, log10, sin, cos, mgrid, column_stack, row_stack, append, shape, zeros, meshgrid, nan
 from scipy.interpolate import griddata
 from scipy.optimize import leastsq
+import matplotlib
+matplotlib.use('TKAgg')
 import matplotlib.pyplot as plt
 import sys
 from misc import *
