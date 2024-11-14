@@ -385,7 +385,10 @@ def brml_reader(file_name):
                     else:
                         scanning += float(step)
                     line_count += 1
-                    intensity = (chain.text).split(',')[-1]
+                    if len((chain.text).split(',')) >= 6:  # modification for Jerome Wolfman / new brml format has more colums in <datum> section
+                        intensity = (chain.text).split(',')[-2]
+                    else:
+                        intensity = (chain.text).split(',')[-1]
                     #compute time corresponding to scanning angle (July 2017)
                     t_2th = (t_start+n_day*24*3600 - abs_start)+((float(dth_psd)*check_1Dmode + scanning - float(start)) / scan_speed)
                     outfile.write("25" + " " + (chi) + " " + (phi)
