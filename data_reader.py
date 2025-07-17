@@ -350,29 +350,29 @@ def brml_reader(file_name):
 # The intensity data is formatted differently in PSDfixed mode and when temperature is recorded
 #*****************************************************************************************************
         if "PSDFIXED" in scan_type:
-            if check_temperature == 0:
-                for chain in (root.findall("./DataRoutes/DataRoute") or root.findall("./")):
-                    intensity = (chain.find("Datum").text).split(',')
+            # if check_temperature == 0: # I don't remeber why I implemented this condition, but it breaks the ability to plot temperature RSM (removed July 2025)
+            for chain in (root.findall("./DataRoutes/DataRoute") or root.findall("./")):
+                intensity = (chain.find("Datum").text).split(',')
 
-                for chain in (root.findall("./DataRoutes/DataRoute/DataViews/RawDataView/Recording") or root.findall("./DataViews/RawDataView/Recording")):
-                    if chain.get("LogicName") == "Counter1D":
-                        n_channels = int(chain.find("Size/X").text)
+            for chain in (root.findall("./DataRoutes/DataRoute/DataViews/RawDataView/Recording") or root.findall("./DataViews/RawDataView/Recording")):
+                if chain.get("LogicName") == "Counter1D":
+                    n_channels = int(chain.find("Size/X").text)
 
-                line_count = 0
-                int_shift = len(intensity) - n_channels
-                for i in range(n_channels): #the intensity values are shifted to the right by int_shift
-                    if i == 0:
-                        scanning = float(start)
-                    else:
-                        scanning += float(step)
-                    line_count += 1
-                    t_2th = (t_start+n_day*24*3600 - abs_start)+((float(dth_psd)*check_1Dmode + scanning - float(start)) / scan_speed)
-                    outfile.write("25" + " " + (chi) + " " + (phi)
-                                  + " " + (tx) + " " + (ty) + " " + (om)
-                                  + " " + (offset) + " " + (tth) + " " + str(scanning)
-                                  + " "  + intensity[i+int_shift] +" " + str(t_2th) +'\n')
-            else:
-                return implementation_warning, 0, 0
+            line_count = 0
+            int_shift = len(intensity) - n_channels
+            for i in range(n_channels): #the intensity values are shifted to the right by int_shift
+                if i == 0:
+                    scanning = float(start)
+                else:
+                    scanning += float(step)
+                line_count += 1
+                t_2th = (t_start+n_day*24*3600 - abs_start)+((float(dth_psd)*check_1Dmode + scanning - float(start)) / scan_speed)
+                outfile.write("25" + " " + (chi) + " " + (phi)
+                                + " " + (tx) + " " + (ty) + " " + (om)
+                                + " " + (offset) + " " + (tth) + " " + str(scanning)
+                                + " "  + intensity[i+int_shift] +" " + str(t_2th) +'\n')
+            # else:
+            #     return implementation_warning, 0, 0
 
         #if "COUPLED" in scan_type:
         # to do check in brml that all scans (except psd fixed) share the same data structure (wrt temperature)
