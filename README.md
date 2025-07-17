@@ -8,7 +8,7 @@ DxTools requires [Python 3](http://www.python.org), [SciPy](http://www.scipy.org
 DxTools is not compatible with Python 2.7 and below.
 
 ### Linux
-In a terminal run (as root) `apt install python3 python3-scipy python3-matplolib`.
+In a terminal run (as root) `apt install python3 python3-scipy python3-matplolib python3-tk`.
 In the DxTools folder, run the program with `python3 dxtools.py`
 
 ### MS Windows
